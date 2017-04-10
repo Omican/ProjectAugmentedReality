@@ -1,4 +1,4 @@
-package com.par.projectaugmentedreality.VideoPlayback;
+package com.par.projectaugmentedreality;
 
 /**
  * Created by Maick on 4/4/2017.
@@ -18,6 +18,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -28,9 +29,6 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import android.view.GestureDetector.OnDoubleTapListener;
-import android.view.GestureDetector.SimpleOnGestureListener;
-
 import com.vuforia.CameraDevice;
 import com.vuforia.DataSet;
 import com.vuforia.ObjectTracker;
@@ -40,13 +38,9 @@ import com.vuforia.Trackable;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
-import com.par.projectaugmentedreality.ApplicationControl;
-import com.par.projectaugmentedreality.ApplicationException;
-import com.par.projectaugmentedreality.ApplicationSession;
 import com.par.projectaugmentedreality.utils.LoadingDialogHandler;
 import com.par.projectaugmentedreality.utils.ApplicationGLView;
 import com.par.projectaugmentedreality.utils.Texture;
-import com.par.projectaugmentedreality.R;
 import com.par.projectaugmentedreality.ui.AppMenu;
 import com.par.projectaugmentedreality.ui.AppMenuGroup;
 import com.par.projectaugmentedreality.ui.AppMenuInterface;
@@ -59,8 +53,6 @@ public class ImageTargets extends Activity implements ApplicationControl,
 
     ApplicationSession vuforiaAppSession;
 
-    Activity mActivity;
-
     private DataSet mCurrentDataset;
     private int mCurrentDatasetSelectionIndex = 0;
     private int mStartDatasetsIndex = 0;
@@ -72,29 +64,8 @@ public class ImageTargets extends Activity implements ApplicationControl,
 
     // Our renderer:
     private ImageTargetsRenderer mRenderer;
-    // Our renderer:
-    private VideoPlaybackRenderer mVideoRenderer;
 
     private GestureDetector mGestureDetector;
-    private GestureDetector.SimpleOnGestureListener mSimpleListener = null;
-
-    // Movie for the Targets:
-    public static final int NUM_TARGETS = 2;
-    public static final int STONES = 0;
-    public static final int CHIPS = 1;
-    private VideoPlayerHelper mVideoPlayerHelper[] = null;
-    private int mSeekPosition[] = null;
-    private boolean mWasPlaying[] = null;
-    private String mMovieName[] = null;
-
-    //Video Dataset
-    DataSet dataSetStonesAndChips = null;
-
-    //Video Fullscreen
-    private boolean mPlayFullscreenVideo = false;
-
-    // A boolean to indicate whether we come from full screen:
-    private boolean mReturningFromFullScreen = false;
 
     // The textures we will use for rendering:
     private Vector<Texture> mTextures;
@@ -117,8 +88,6 @@ public class ImageTargets extends Activity implements ApplicationControl,
 
     boolean mIsDroidDevice = false;
 
-    boolean mIsInitialized = false;
-
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -130,8 +99,6 @@ public class ImageTargets extends Activity implements ApplicationControl,
 
         vuforiaAppSession = new ApplicationSession(this);
 
-        mActivity = this;
-
         startLoadingAnimation();
         mDatasetStrings.add("StonesAndChips.xml");
         mDatasetStrings.add("Tarmac.xml");
@@ -139,7 +106,7 @@ public class ImageTargets extends Activity implements ApplicationControl,
         vuforiaAppSession
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        //mGestureDetector = new GestureDetector(this, new GestureListener());
+        mGestureDetector = new GestureDetector(this, new GestureListener());
 
         // Load any  specific textures:
         mTextures = new Vector<Texture>();
@@ -148,106 +115,9 @@ public class ImageTargets extends Activity implements ApplicationControl,
         mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
                 "droid");
 
-        mSimpleListener = new SimpleOnGestureListener();
-        mGestureDetector = new GestureDetector(getApplicationContext(),
-                mSimpleListener);
-
-        mVideoPlayerHelper = new VideoPlayerHelper[NUM_TARGETS];
-        mSeekPosition = new int[NUM_TARGETS];
-        mWasPlaying = new boolean[NUM_TARGETS];
-        mMovieName = new String[NUM_TARGETS];
-
-        // Create the video player helper that handles the playback of the movie
-        // for the targets:
-        for (int i = 0; i < NUM_TARGETS; i++)
-        {
-            mVideoPlayerHelper[i] = new VideoPlayerHelper();
-            mVideoPlayerHelper[i].init();
-            mVideoPlayerHelper[i].setActivity(this);
-        }
-
-        mMovieName[STONES] = "VideoPlayback/VuforiaSizzleReel_1.mp4";
-        mMovieName[CHIPS] = "VideoPlayback/VuforiaSizzleReel_2.mp4";
-
-        // Set the double tap listener:
-        mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener()
-        {
-            public boolean onDoubleTap(MotionEvent e)
-            {
-                // We do not react to this event
-                return false;
-            }
-
-
-            public boolean onDoubleTapEvent(MotionEvent e)
-            {
-                // We do not react to this event
-                return false;
-            }
-
-
-            // Handle the single tap
-            public boolean onSingleTapConfirmed(MotionEvent e)
-            {
-                boolean isSingleTapHandled = false;
-                // Do not react if the StartupScreen is being displayed
-                for (int i = 0; i < NUM_TARGETS; i++)
-                {
-                    // Verify that the tap happened inside the target
-                    if (mVideoRenderer!= null && mVideoRenderer.isTapOnScreenInsideTarget(i, e.getX(),
-                            e.getY()))
-                    {
-                        // Check if it is playable on texture
-                        if (mVideoPlayerHelper[i].isPlayableOnTexture())
-                        {
-                            // We can play only if the movie was paused, ready
-                            // or stopped
-                            if ((mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PAUSED)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.READY)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.STOPPED)
-                                    || (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END))
-                            {
-                                // Pause all other media
-                                pauseAll(i);
-
-                                // If it has reached the end then rewind
-                                if ((mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.REACHED_END))
-                                    mSeekPosition[i] = 0;
-
-                                mVideoPlayerHelper[i].play(mPlayFullscreenVideo,
-                                        mSeekPosition[i]);
-                                mSeekPosition[i] = VideoPlayerHelper.CURRENT_POSITION;
-                            } else if (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING)
-                            {
-                                // If it is playing then we pause it
-                                mVideoPlayerHelper[i].pause();
-                            }
-                        } else if (mVideoPlayerHelper[i].isPlayableFullscreen())
-                        {
-                            // If it isn't playable on texture
-                            // Either because it wasn't requested or because it
-                            // isn't supported then request playback fullscreen.
-                            mVideoPlayerHelper[i].play(true,
-                                    VideoPlayerHelper.CURRENT_POSITION);
-                        }
-
-                        isSingleTapHandled = true;
-
-                        // Even though multiple videos can be loaded only one
-                        // can be playing at any point in time. This break
-                        // prevents that, say, overlapping videos trigger
-                        // simultaneously playback.
-                        break;
-                    }
-                }
-
-                return isSingleTapHandled;
-            }
-        });
-
     }
 
-/*    // Process Single Tap event to trigger autofocus
+    // Process Single Tap event to trigger autofocus
     private class GestureListener extends
             GestureDetector.SimpleOnGestureListener
     {
@@ -281,7 +151,7 @@ public class ImageTargets extends Activity implements ApplicationControl,
 
             return true;
         }
-    }*/
+    }
 
 
     // We want to load specific textures from the APK, which we will later use
@@ -413,7 +283,7 @@ public class ImageTargets extends Activity implements ApplicationControl,
         mGlView = new ApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
 
-        mRenderer = new ImageTargetsRenderer(this, vuforiaAppSession);
+        mRenderer = new ImageTargetsRenderer(this, vuforiaAppSession, getApplicationContext());
         mRenderer.setTextures(mTextures);
         mGlView.setRenderer(mRenderer);
     }

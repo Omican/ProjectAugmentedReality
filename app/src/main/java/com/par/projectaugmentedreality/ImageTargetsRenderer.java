@@ -1,4 +1,4 @@
-package com.par.projectaugmentedreality.VideoPlayback;
+package com.par.projectaugmentedreality;
 
 /**
  * Created by Maick on 4/4/2017.
@@ -11,10 +11,16 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
+
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 
 import com.vuforia.Device;
 import com.vuforia.Matrix44F;
@@ -23,9 +29,6 @@ import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.Vuforia;
-import com.par.projectaugmentedreality.AppRenderer;
-import com.par.projectaugmentedreality.AppRendererControl;
-import com.par.projectaugmentedreality.ApplicationSession;
 import com.par.projectaugmentedreality.utils.CubeShaders;
 import com.par.projectaugmentedreality.utils.LoadingDialogHandler;
 import com.par.projectaugmentedreality.utils.Application3DModel;
@@ -38,6 +41,8 @@ import com.par.projectaugmentedreality.utils.Texture;
 public class ImageTargetsRenderer implements GLSurfaceView.Renderer, AppRendererControl
 {
     private static final String LOGTAG = "ImageTargetRenderer";
+
+    private final Context context;
 
     private ApplicationSession vuforiaAppSession;
     private ImageTargets mActivity;
@@ -62,15 +67,16 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer, AppRenderer
     private static final float OBJECT_SCALE_FLOAT = 0.003f;
 
 
-    public ImageTargetsRenderer(ImageTargets activity, ApplicationSession session)
+    public ImageTargetsRenderer(ImageTargets activity, ApplicationSession session, Context context)
     {
+        this.context = context;
+
         mActivity = activity;
         vuforiaAppSession = session;
         // AppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
         mAppRenderer = new AppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f , 5f);
     }
-
 
     // Called to draw the current frame.
     @Override
@@ -198,7 +204,14 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer, AppRenderer
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
             printUserData(trackable);
-            Matrix44F modelViewMatrix_Vuforia = Tool
+
+            if(trackable != null) {
+                Intent intent = new Intent(context, TargetInformation.class);
+                intent.putExtra("Dataset", trackable.toString());
+                context.startActivity(intent);
+            }
+
+/*            Matrix44F modelViewMatrix_Vuforia = Tool
                     .convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
@@ -278,9 +291,9 @@ public class ImageTargetsRenderer implements GLSurfaceView.Renderer, AppRenderer
 
         }
 
-        GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDisable(GLES20.GL_DEPTH_TEST);*/
 
-    }
+    }}
 
     private void printUserData(Trackable trackable)
     {

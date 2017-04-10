@@ -454,7 +454,7 @@ public class VideoPlayback extends Activity implements
         mGlView = new ApplicationGLView(this);
         mGlView.init(translucent, depthSize, stencilSize);
 
-        mRenderer = new VideoPlaybackRenderer(this, vuforiaAppSession);
+        mRenderer = new VideoPlaybackRenderer(this, vuforiaAppSession, getApplicationContext());
         mRenderer.setTextures(mTextures);
 
         // The renderer comes has the OpenGL context, thus, loading to texture
