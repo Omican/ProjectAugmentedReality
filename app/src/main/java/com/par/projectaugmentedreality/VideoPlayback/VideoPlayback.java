@@ -139,8 +139,8 @@ public class VideoPlayback extends Activity implements
             mVideoPlayerHelper[i].setActivity(this);
         }
 
-        mMovieName[STONES] = "VideoPlayback/VuforiaSizzleReel_1.mp4";
-        mMovieName[CHIPS] = "VideoPlayback/VuforiaSizzleReel_2.mp4";
+        mMovieName[STONES] = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
+        mMovieName[CHIPS] = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
 
         // Set the double tap listener:
         mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener()
@@ -539,7 +539,7 @@ public class VideoPlayback extends Activity implements
         }
 
         // Load the data sets:
-        if (!dataSetStonesAndChips.load("StonesAndChips.xml",
+        if (!dataSetStonesAndChips.load("ARDatabase.xml",
                 STORAGE_TYPE.STORAGE_APPRESOURCE))
         {
             Log.d(LOGTAG, "Failed to load data set.");

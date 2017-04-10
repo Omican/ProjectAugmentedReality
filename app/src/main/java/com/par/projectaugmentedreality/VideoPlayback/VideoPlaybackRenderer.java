@@ -531,7 +531,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
             // We store the modelview matrix to be used later by the tap
             // calculation
-            if (!imageTarget.getName().equals("chips")) {
+            if (!imageTarget.getName().equals("Yalta_Conference")) {
                 Intent intent = new Intent(context, TargetInformation.class);
                 intent.putExtra("Dataset", imageTarget.getName());
                 context.startActivity(intent);
