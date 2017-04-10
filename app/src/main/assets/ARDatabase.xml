@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
+    <ImageTarget name="John_Kennedy_Nikita_Khrushchev_1961" size="0.180000 0.139737" />
     <ImageTarget name="Yalta_Conference" size="0.180000 0.141855" />
     <ImageTarget name="berlin_wall" size="0.180000 0.121113" />
   </Tracking>
