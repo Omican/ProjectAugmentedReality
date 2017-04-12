@@ -6,6 +6,8 @@ package com.par.projectaugmentedreality.utils;
 
 
 import android.opengl.GLES20;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 
@@ -13,7 +15,6 @@ public class Utils
 {
 
     private static final String LOGTAG = "SampleUtils";
-
 
     static int initShader(int shaderType, String source)
     {

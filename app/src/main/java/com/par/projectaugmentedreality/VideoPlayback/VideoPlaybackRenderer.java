@@ -19,6 +19,8 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -28,10 +30,13 @@ import com.par.projectaugmentedreality.TargetInformation;
 import com.vuforia.Device;
 import com.vuforia.ImageTarget;
 import com.vuforia.Matrix44F;
+import com.vuforia.ObjectTracker;
 import com.vuforia.Renderer;
 import com.vuforia.State;
 import com.vuforia.Tool;
 import com.vuforia.TrackableResult;
+import com.vuforia.Tracker;
+import com.vuforia.TrackerManager;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.vuforia.Vec2F;
 import com.vuforia.Vec3F;
@@ -52,6 +57,9 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
     private static final String LOGTAG = "VideoPlaybackRenderer";
 
     private final Context context;
+    ImageTarget imageTarget;
+    String trackableName;
+    boolean startedIntent;
 
     ApplicationSession vuforiaAppSession;
     AppRenderer mAppRenderer;
@@ -520,12 +528,15 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             targetPositiveDimensions[i].setData(temp);
         }
 
+
+
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
+            startedIntent = false;
             // Get the trackable:
             TrackableResult trackableResult = state.getTrackableResult(tIdx);
 
-            ImageTarget imageTarget = (ImageTarget) trackableResult
+            imageTarget = (ImageTarget) trackableResult
                     .getTrackable();
 
             int currentTarget;
@@ -533,13 +544,32 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             // We store the modelview matrix to be used later by the tap
             // calculation
             if(imageTarget.getName().equals("quiz_icon")){
-                Intent intent = new Intent(context, QuizScreen.class);
-                context.startActivity(intent);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(context, QuizScreen.class);
+                        if(startedIntent == false) {
+                            context.startActivity(intent);
+                            startedIntent = true;
+                        }
+                    }
+                }, 2000);
             }
             else if (!imageTarget.getName().equals("Yalta_Conference")) {
-                Intent intent = new Intent(context, TargetInformation.class);
-                intent.putExtra("Dataset", imageTarget.getName());
-                context.startActivity(intent);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        trackableName = imageTarget.getName();
+                        Intent intent = new Intent(context, TargetInformation.class);
+                        intent.putExtra("Dataset", trackableName);
+                        if(startedIntent == false) {
+                            context.startActivity(intent);
+                            startedIntent = true;
+                        }
+
+                    }
+                }, 2000);
             } else {
                 currentTarget = VideoPlayback.CHIPS;
 
