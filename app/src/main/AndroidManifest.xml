@@ -32,10 +32,10 @@
     -->
     <uses-feature android:name="android.hardware.camera" />
 
-    <!--         Add this permission to get access to the camera. -->
+    <!-- Add this permission to get access to the camera. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!--         Add this permission to allow opening network sockets. -->
+    <!-- Add this permission to allow opening network sockets. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!--
@@ -46,6 +46,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <!--
       NOTE: The setting 'android:launchMode="singleTask"' makes sure
       that the activity can begin only one task and the device can hold only
@@ -93,24 +94,24 @@
         <activity
             android:name=".ui.ActivityList.ActivityLauncher"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ActivityList.AboutScreen"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:noHistory="true"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ImageTargets"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
-            android:theme="@style/SampleAppsTheme"></activity>
+            android:theme="@style/SampleAppsTheme" />
         <activity
             android:name=".VideoPlayback.VideoPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
             android:theme="@style/SampleAppsTheme" />
 
-        <!--             This is the activity that holds the full screen media player. -->
+        <!-- This is the activity that holds the full screen media player. -->
         <activity
             android:name=".VideoPlayback.FullscreenPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
@@ -122,7 +123,8 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".TargetInformation"></activity>
+        <activity android:name=".TargetInformation" />
+        <activity android:name=".QuizScreen"></activity>
     </application>
 
 </manifest>

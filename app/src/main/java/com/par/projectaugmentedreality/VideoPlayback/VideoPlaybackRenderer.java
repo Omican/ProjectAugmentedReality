@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.par.projectaugmentedreality.QuizScreen;
 import com.par.projectaugmentedreality.TargetInformation;
 import com.vuforia.Device;
 import com.vuforia.ImageTarget;
@@ -531,7 +532,11 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
             // We store the modelview matrix to be used later by the tap
             // calculation
-            if (!imageTarget.getName().equals("Yalta_Conference")) {
+            if(imageTarget.getName().equals("quiz_icon")){
+                Intent intent = new Intent(context, QuizScreen.class);
+                context.startActivity(intent);
+            }
+            else if (!imageTarget.getName().equals("Yalta_Conference")) {
                 Intent intent = new Intent(context, TargetInformation.class);
                 intent.putExtra("Dataset", imageTarget.getName());
                 context.startActivity(intent);
