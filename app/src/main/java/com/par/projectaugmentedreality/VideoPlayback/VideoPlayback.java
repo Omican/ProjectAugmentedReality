@@ -62,9 +62,11 @@ public class VideoPlayback extends Activity implements
     private SimpleOnGestureListener mSimpleListener = null;
 
     // Movie for the Targets:
-    public static final int NUM_TARGETS = 2;
+    public static final int NUM_TARGETS = 4;
     public static final int STONES = 0;
     public static final int CHIPS = 1;
+    public static final int YALTA = 2;
+    public static final int WALL = 3;
     private VideoPlayerHelper mVideoPlayerHelper[] = null;
     private int mSeekPosition[] = null;
     private boolean mWasPlaying[] = null;
@@ -139,8 +141,10 @@ public class VideoPlayback extends Activity implements
             mVideoPlayerHelper[i].setActivity(this);
         }
 
-        mMovieName[STONES] = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
-        mMovieName[CHIPS] = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
+        mMovieName[STONES] = "VideoPlayback/Berlin_Wall.mp4";
+        mMovieName[CHIPS] = "VideoPlayback/Berlin_Wall.mp4";
+        mMovieName[YALTA] = "VideoPlayback/Berlin_Wall.mp4";
+        mMovieName[WALL] = "VideoPlayback/Berlin_Wall.mp4";
 
         // Set the double tap listener:
         mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener()

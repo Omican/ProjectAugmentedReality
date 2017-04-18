@@ -9,4 +9,6 @@
     <color name="overlay_bottom_bar_separators">#333333</color>
     <color name="overlay_bottom_bar_background">#1E1E1E</color>
     <color name="holo_light_blue">#33B5E5</color>
-</resources>
+    <color name="red">#ff0000</color>
+    <color name="green">#00ff00</color>
+    </resources>

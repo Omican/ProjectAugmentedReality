@@ -66,6 +66,11 @@
     <string name="menu_camera_back">Rear</string>
 
     <string name="splash_screen_description">Vuforia Splash</string>
+    <string name="answer_correct"><font color="green">GOED</font></string>
+    <string name="answer_incorrect"><font color="red">FOUT</font></string>
+
+    <string name="correct_answer_header">Juiste antwoord</string>
+    <string name="given_answer_header">Gegeven antwoord</string>
 
     <string name="berlin_wall">The Berlin Wall (German: Berliner Mauer) was a guarded concrete barrier that physically and ideologically divided Berlin from 1961 to 1989.[1] Constructed by the German Democratic Republic (GDR, East Germany), starting on 13 August 1961, the Wall completely cut off (by land) West Berlin from surrounding East Germany and from East Berlin until government officials opened it in November 1989.[2] Its demolition officially began on 13 June 1990 and was completed in 1992.[3] The barrier included guard towers placed along large concrete walls,[4] which circumscribed a wide area (later known as the "death strip") that contained anti-vehicle trenches, "fakir beds" and other defenses. The Eastern Bloc claimed that the Wall was erected to protect its population from fascist elements conspiring to prevent the "will of the people" in building a socialist state in East Germany. In practice, the Wall served to prevent the massive emigration and defection that had marked East Germany and the communist Eastern Bloc during the post-World War II period.</string>
     <string name="John_Kennedy_Nikita_Khrushchev_1961">Khrushchev and Kennedy devoted a significant amount of time at the Vienna Summit to discussing the Berlin Crisis. Khrushchev opened the conversation by expressing the Soviet perspective that a united Germany “[constituted] a threat of World War III.”[13] He pointed to the fact that Germany began World War II. Only fifteen years after the end of that war, Germany again posed a “military threat” as a member of NATO.[14] Khrushchev explained that the USSR desired to sign a separate peace treaty with East Germany. Such a treaty, he argued, “would not prejudice the interests of the U.S., the UK, or France.”[15] He told Kennedy that if the United States failed to support a peace treaty, the Soviet Union would sign the peace treaty unilaterally.</string>
@@ -81,6 +86,7 @@
     <string name="John_Kennedy_Nikita_Khrushchev_1961_answer_three">Kennedy Khruschev a3</string>
     <string name="John_Kennedy_Nikita_Khrushchev_1961_answer_four">Kennedy Khruschev a4</string>
 
+    <string name="Yalta_Conference">The Yalta Conference, sometimes called the Crimea Conference and code named the Argonaut Conference, held from February 7 to 11, 1945, was the World War II meeting of the heads of government of the United States, the United Kingdom and the Soviet Union, represented by President Franklin D. Roosevelt, Prime Minister Winston Churchill and Premier Joseph Stalin, respectively, for the purpose of discussing Europe\'s post-war reorganization. The conference convened in the Livadia Palace near Yalta in Crimea, USSR. The goal of the conference was to shape a post-war peace that represented not just a collective security order but a plan to give self-determination to the liberated peoples of post-Nazi Europe.</string>
     <string name="Yalta_Conference_question">Yalta question</string>
     <string name="Yalta_Conference_answer_one">Yalta a1</string>
     <string name="Yalta_Conference_answer_two">Yalta a2</string>

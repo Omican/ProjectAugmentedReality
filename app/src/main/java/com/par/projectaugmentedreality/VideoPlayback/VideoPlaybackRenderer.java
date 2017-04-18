@@ -528,8 +528,6 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             targetPositiveDimensions[i].setData(temp);
         }
 
-
-
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
             startedIntent = false;
@@ -555,17 +553,18 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
                     }
                 }, 2000);
             }
-            else if (!imageTarget.getName().equals("Yalta_Conference")) {
+            else if (!imageTarget.getName().equals("berlin_wall")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
                         trackableName = imageTarget.getName();
                         Intent intent = new Intent(context, TargetInformation.class);
                         intent.putExtra("Dataset", trackableName);
                         if(startedIntent == false) {
-                            context.startActivity(intent);
-                            startedIntent = true;
+                            if(!imageTarget.getName().equals("berlin_wall")) {
+                                context.startActivity(intent);
+                                startedIntent = true;
+                            }
                         }
 
                     }

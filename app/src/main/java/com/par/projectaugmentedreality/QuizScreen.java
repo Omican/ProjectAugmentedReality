@@ -1,6 +1,7 @@
 package com.par.projectaugmentedreality;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,7 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class QuizScreen extends Activity {
     TextView question;
-    TextView answerText;
+
     RadioButton answerOne;
     RadioButton answerTwo;
     RadioButton answerThree;
@@ -49,8 +50,11 @@ public class QuizScreen extends Activity {
     Button nextQuestion;
     RadioGroup quizRadiogroup;
     ArrayList<String> answerList;
+    ArrayList<String> correctAnswers;
     LinearLayout layout;
     String answers;
+    String correctAnswerText;
+
     int x = 1;
 
     @Override
@@ -65,8 +69,12 @@ public class QuizScreen extends Activity {
         answerFour = (RadioButton) findViewById(R.id.answer_four);
         question = (TextView) findViewById(R.id.quiz_question);
         quizRadiogroup = (RadioGroup) findViewById(R.id.quiz_radiogroup);
-        answerText = (TextView) findViewById(R.id.answer_text);
         answerList = new ArrayList<String>();
+        correctAnswers = new ArrayList<String>();
+        correctAnswers.add("Kennedy Khruschev a1");
+        correctAnswers.add("Yalta a3");
+        correctAnswers.add("1991");
+
 
         setText();
     }
@@ -102,12 +110,7 @@ public class QuizScreen extends Activity {
                 question.setText(quizQuestionID);
             }
         } else {
-            hideText();
-            answers = "";
-            for(int i = 0; i < answerList.size(); i++){
-                answers += answerList.get(i) + System.getProperty("line.separator");
-            }
-            answerText.setText(answers);
+                showAnswers();
         }
     }
 
@@ -130,6 +133,27 @@ public class QuizScreen extends Activity {
             x++;
             setText();
         }
+    }
+
+    public void showAnswers(){
+        hideText();
+
+        answers = "";
+        correctAnswerText = "";
+        for(int i = 0; i < answerList.size(); i++){
+            answers += answerList.get(i);
+            if(answerList.get(i).equals(correctAnswers.get(i))){
+                correctAnswerText += correctAnswers.get(i);
+            } else {
+                correctAnswerText += correctAnswers.get(i);
+            }
+            answers += System.getProperty("line.separator") + System.getProperty("line.separator");
+            correctAnswerText += System.getProperty("line.separator") + System.getProperty("line.separator");
+        }
+        Intent intent = new Intent(this, QuizAnswerScreen.class);
+        intent.putExtra("answerList", answers);
+        intent.putExtra("correctAnswers", correctAnswerText);
+        startActivity(intent);
     }
 
     public static int getId(String resourceName, Class<?> c) {

@@ -4,11 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     tools:context="com.par.projectaugmentedreality.QuizScreen"
     android:background="@color/white"
     android:id="@+id/quiz_screen_layout">
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,19 +39,11 @@
 
     </RadioGroup>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/answer_text"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="20dp"/>
-
-    <Button
-        android:id="@+id/quiz_next_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="nextQuestion"
-        android:layout_marginTop="540dp"
-        android:text="@string/quiz_next_button_text" />
-
+        <Button
+            android:id="@+id/quiz_next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="nextQuestion"
+            android:layout_marginTop="540dp"
+            android:text="@string/quiz_next_button_text" />
 </RelativeLayout>

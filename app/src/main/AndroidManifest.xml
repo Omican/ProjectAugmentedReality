@@ -124,7 +124,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".TargetInformation" />
-        <activity android:name=".QuizScreen"></activity>
+        <activity android:name=".QuizScreen" />
+        <activity android:name=".QuizAnswerScreen"></activity>
     </application>
 
 </manifest>
