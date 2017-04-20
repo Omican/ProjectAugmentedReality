@@ -10,13 +10,24 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.vuforia.DataSet;
+import com.vuforia.Image;
 import com.vuforia.ImageTarget;
 import com.vuforia.ObjectTracker;
 import com.vuforia.Renderer;
@@ -42,7 +53,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class QuizScreen extends Activity {
     TextView question;
-
+    ImageView quizImage;
     RadioButton answerOne;
     RadioButton answerTwo;
     RadioButton answerThree;
@@ -54,13 +65,17 @@ public class QuizScreen extends Activity {
     LinearLayout layout;
     String answers;
     String correctAnswerText;
-
     int x = 1;
+
+    private StorageReference mStorageRef;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_screen);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         nextQuestion = (Button) findViewById(R.id.quiz_next_button);
         answerOne = (RadioButton) findViewById(R.id.answer_one);
@@ -69,12 +84,9 @@ public class QuizScreen extends Activity {
         answerFour = (RadioButton) findViewById(R.id.answer_four);
         question = (TextView) findViewById(R.id.quiz_question);
         quizRadiogroup = (RadioGroup) findViewById(R.id.quiz_radiogroup);
+        quizImage = (ImageView) findViewById(R.id.quiz_image);
         answerList = new ArrayList<String>();
         correctAnswers = new ArrayList<String>();
-        correctAnswers.add("Kennedy Khruschev a1");
-        correctAnswers.add("Yalta a3");
-        correctAnswers.add("1991");
-
 
         setText();
     }
@@ -91,23 +103,77 @@ public class QuizScreen extends Activity {
                 x++;
             }
             else {
-                String quizAnswerOne = name + "_answer_one";
-                String quizAnswerTwo = name + "_answer_two";
-                String quizAnswerThree = name + "_answer_three";
-                String quizAnswerFour = name + "_answer_four";
-                String quizQuestion = name + "_question";
+                StorageReference image = mStorageRef.child(name + ".jpg");
+                Glide.with(this)
+                        .using(new FirebaseImageLoader())
+                        .load(image)
+                        .into(quizImage);
+                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerA").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        answerOne.setText(dataSnapshot.getValue().toString());
+                    }
 
-                int quizAnswerOneID = getId(quizAnswerOne, R.string.class);
-                int quizAnswerTwoID = getId(quizAnswerTwo, R.string.class);
-                int quizAnswerThreeID = getId(quizAnswerThree, R.string.class);
-                int quizAnswerFourID = getId(quizAnswerFour, R.string.class);
-                int quizQuestionID = getId(quizQuestion, R.string.class);
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                answerOne.setText(quizAnswerOneID);
-                answerTwo.setText(quizAnswerTwoID);
-                answerThree.setText(quizAnswerThreeID);
-                answerFour.setText(quizAnswerFourID);
-                question.setText(quizQuestionID);
+                    }
+                });
+                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerB").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        answerTwo.setText(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerC").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        answerThree.setText(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerD").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        answerFour.setText(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.child("Koude_Oorlog").child(name).child("quizQuestion").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        question.setText(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.child("Koude_Oorlog").child(name).child("correctAnswer").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        correctAnswers.add(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         } else {
                 showAnswers();
@@ -137,7 +203,6 @@ public class QuizScreen extends Activity {
 
     public void showAnswers(){
         hideText();
-
         answers = "";
         correctAnswerText = "";
         for(int i = 0; i < answerList.size(); i++){
@@ -154,15 +219,5 @@ public class QuizScreen extends Activity {
         intent.putExtra("answerList", answers);
         intent.putExtra("correctAnswers", correctAnswerText);
         startActivity(intent);
-    }
-
-    public static int getId(String resourceName, Class<?> c) {
-        try {
-            Field idField = c.getDeclaredField(resourceName);
-            return idField.getInt(idField);
-        } catch (Exception e) {
-            throw new RuntimeException("No resource ID found for: "
-                    + resourceName + " / " + c, e);
-        }
     }
 }

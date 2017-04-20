@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "457375914287",
+    "firebase_url": "https://projectar-542a9.firebaseio.com",
+    "project_id": "projectar-542a9",
+    "storage_bucket": "projectar-542a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457375914287:android:53237583e2c1c33b",
+        "android_client_info": {
+          "package_name": "com.par.projectaugmentedreality"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457375914287-dms3bpvebf47gpkkijsdm4u5i3io5634.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.par.projectaugmentedreality",
+            "certificate_hash": "32a5513786832cdab4384fe9da109c39c52cf2fe"
+          }
+        },
+        {
+          "client_id": "457375914287-1u0prng1lmpo7qi1gkj182ivspoget10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh4S8XJPIZn2CbznDV_UperXOr2KzX2GY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457375914287-1u0prng1lmpo7qi1gkj182ivspoget10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

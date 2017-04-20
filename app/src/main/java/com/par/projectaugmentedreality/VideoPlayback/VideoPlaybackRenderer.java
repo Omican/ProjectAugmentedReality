@@ -25,6 +25,11 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.par.projectaugmentedreality.QuizScreen;
 import com.par.projectaugmentedreality.TargetInformation;
 import com.vuforia.Device;
@@ -55,11 +60,13 @@ import com.par.projectaugmentedreality.VideoPlayback.VideoPlayerHelper.MEDIA_TYP
 public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendererControl
 {
     private static final String LOGTAG = "VideoPlaybackRenderer";
+    private DatabaseReference mDatabase;
 
     private final Context context;
     ImageTarget imageTarget;
     String trackableName;
     boolean startedIntent;
+    String type;
 
     ApplicationSession vuforiaAppSession;
     AppRenderer mAppRenderer;
@@ -504,6 +511,8 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
         // Renders video background replacing Renderer.DrawVideoBackground()
         mAppRenderer.renderVideoBackground();
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         // We must detect if background reflection is active and adjust the
@@ -539,6 +548,19 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
             int currentTarget;
 
+            if(!imageTarget.getName().equals("quiz_icon")) {
+                mDatabase.child("Koude_Oorlog").child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        type = dataSnapshot.getValue().toString();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
             // We store the modelview matrix to be used later by the tap
             // calculation
             if(imageTarget.getName().equals("quiz_icon")){
@@ -553,7 +575,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
                     }
                 }, 2000);
             }
-            else if (!imageTarget.getName().equals("berlin_wall")) {
+            else if (type != null && type.equals("text")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -561,15 +583,13 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
                         Intent intent = new Intent(context, TargetInformation.class);
                         intent.putExtra("Dataset", trackableName);
                         if(startedIntent == false) {
-                            if(!imageTarget.getName().equals("berlin_wall")) {
-                                context.startActivity(intent);
-                                startedIntent = true;
-                            }
+                            context.startActivity(intent);
+                            startedIntent = true;
                         }
 
                     }
                 }, 2000);
-            } else {
+            } else if(type != null && type.equals("video")){
                 currentTarget = VideoPlayback.CHIPS;
 
 

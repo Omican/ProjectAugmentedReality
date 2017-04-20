@@ -8,9 +8,18 @@
     tools:context="com.par.projectaugmentedreality.QuizScreen"
     android:background="@color/white"
     android:id="@+id/quiz_screen_layout">
-    <TextView
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/quiz_image"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"/>
+    <TextView
+        android:layout_below="@id/quiz_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:id="@+id/quiz_question"/>
     <RadioGroup
         android:layout_width="match_parent"
