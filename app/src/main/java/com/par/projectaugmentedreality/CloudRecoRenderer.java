@@ -1,8 +1,9 @@
-package com.par.projectaugmentedreality.VideoPlayback;
+package com.par.projectaugmentedreality;
 
 /**
- * Created by Maick on 4/5/2017.
+ * Created by Maick on 5/3/2017.
  */
+
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -12,7 +13,6 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.opengl.GLES11Ext;
@@ -21,8 +21,6 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -30,46 +28,52 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.par.projectaugmentedreality.QuizScreen;
-import com.par.projectaugmentedreality.TargetInformation;
+import com.par.projectaugmentedreality.VideoPlayback.KeyFrameShaders;
+import com.par.projectaugmentedreality.VideoPlayback.VideoPlayback;
+import com.par.projectaugmentedreality.VideoPlayback.VideoPlaybackShaders;
+import com.par.projectaugmentedreality.VideoPlayback.VideoPlayerHelper;
 import com.vuforia.Device;
 import com.vuforia.ImageTarget;
 import com.vuforia.Matrix44F;
-import com.vuforia.ObjectTracker;
 import com.vuforia.Renderer;
 import com.vuforia.State;
+import com.vuforia.TargetFinder;
 import com.vuforia.Tool;
+import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
-import com.vuforia.Tracker;
-import com.vuforia.TrackerManager;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
-import com.vuforia.Vec2F;
 import com.vuforia.Vec3F;
 import com.vuforia.Vuforia;
-import com.par.projectaugmentedreality.ApplicationSession;
 import com.par.projectaugmentedreality.AppRenderer;
 import com.par.projectaugmentedreality.AppRendererControl;
-import com.par.projectaugmentedreality.utils.VuforiaMath;
+import com.par.projectaugmentedreality.ApplicationSession;
+import com.par.projectaugmentedreality.utils.CubeShaders;
 import com.par.projectaugmentedreality.utils.Utils;
+import com.par.projectaugmentedreality.utils.Teapot;
 import com.par.projectaugmentedreality.utils.Texture;
-import com.par.projectaugmentedreality.VideoPlayback.VideoPlayerHelper.MEDIA_STATE;
-import com.par.projectaugmentedreality.VideoPlayback.VideoPlayerHelper.MEDIA_TYPE;
+import com.par.projectaugmentedreality.VideoPlayback.VideoPlayback;
 
 
-// The renderer class for the VideoPlayback .
-public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendererControl
+// The renderer class for the CloudReco .
+public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererControl
 {
-    private static final String LOGTAG = "VideoPlaybackRenderer";
-    private DatabaseReference mDatabase;
-
-    private final Context context;
+    private ApplicationSession vuforiaAppSession;
+    private AppRenderer mAppRenderer;
+    private String type;
     ImageTarget imageTarget;
     String trackableName;
     boolean startedIntent;
-    String type;
+    private Context context;
 
-    ApplicationSession vuforiaAppSession;
-    AppRenderer mAppRenderer;
+    private DatabaseReference mDatabase;
+
+    private static final float OBJECT_SCALE_FLOAT = 3.0f;
+
+    private int shaderProgramID;
+    private int vertexHandle;
+    private int textureCoordHandle;
+    private int mvpMatrixHandle;
+    private int texr2DHandle;
 
     // Video Playback Rendering Specific
     private int videoPlaybackShaderID = 0;
@@ -78,8 +82,18 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
     private int videoPlaybackMVPMatrixHandle = 0;
     private int videoPlaybackTexrOESHandle = 0;
 
+    static int NUM_QUAD_VERTEX = 4;
+    static int NUM_QUAD_INDEX = 6;
+
+    private Matrix44F tappingProjectionMatrix = null;
     // Video Playback Textures for the two targets
-    int videoPlaybackTextureID[] = new int[VideoPlayback.NUM_TARGETS];
+    int videoPlaybackTextureID[] = new int[CloudReco.NUM_TARGETS];
+
+    private float videoQuadTextureCoordsTransformedStones[] = { 0.0f, 0.0f,
+            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, };
+
+    private float videoQuadTextureCoordsTransformedChips[] = { 0.0f, 0.0f,
+            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, };
 
     // Keyframe and icon rendering specific
     private int keyframeShaderID = 0;
@@ -88,23 +102,16 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
     private int keyframeMVPMatrixHandle = 0;
     private int keyframeTexr2DHandle = 0;
 
-    // We cannot use the default texture coordinates of the quad since these
-    // will change depending on the video itself
-    private float videoQuadTextureCoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, };
+    private float[][] mTexCoordTransformationMatrix = null;
+    private VideoPlayerHelper mVideoPlayerHelper[] = null;
+    private String mMovieName[] = null;
+    private VideoPlayerHelper.MEDIA_TYPE mCanRequestType[] = null;
+    private int mSeekPosition[] = null;
+    private boolean mShouldPlayImmediately[] = null;
+    private long mLostTrackingSince[] = null;
+    private boolean mLoadRequested[] = null;
 
-    // This variable will hold the transformed coordinates (changes every frame)
-    private float videoQuadTextureCoordsTransformedStones[] = { 0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, };
-
-    private float videoQuadTextureCoordsTransformedChips[] = { 0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, };
-
-    // Trackable dimensions
-    Vec3F targetPositiveDimensions[] = new Vec3F[VideoPlayback.NUM_TARGETS];
-
-    static int NUM_QUAD_VERTEX = 4;
-    static int NUM_QUAD_INDEX = 6;
+    Buffer quadVertices, quadTexCoords, quadIndices, quadNormals;
 
     double quadVerticesArray[] = { -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, -1.0f, 1.0f, 0.0f };
@@ -116,247 +123,100 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
     short quadIndicesArray[] = { 0, 1, 2, 2, 3, 0 };
 
-    Buffer quadVertices, quadTexCoords, quadIndices, quadNormals;
-
-    private boolean mIsActive = false;
-    private Matrix44F tappingProjectionMatrix = null;
-
-    private float[][] mTexCoordTransformationMatrix = null;
-    private VideoPlayerHelper mVideoPlayerHelper[] = null;
-    private String mMovieName[] = null;
-    private MEDIA_TYPE mCanRequestType[] = null;
-    private int mSeekPosition[] = null;
-    private boolean mShouldPlayImmediately[] = null;
-    private long mLostTrackingSince[] = null;
-    private boolean mLoadRequested[] = null;
-
-    VideoPlayback mActivity;
-
-    // Needed to calculate whether a screen tap is inside the target
-    Matrix44F modelViewMatrix[] = new Matrix44F[VideoPlayback.NUM_TARGETS];
-
     private Vector<Texture> mTextures;
 
-    boolean isTracking[] = new boolean[VideoPlayback.NUM_TARGETS];
-    MEDIA_STATE currentStatus[] = new MEDIA_STATE[VideoPlayback.NUM_TARGETS];
+    private Teapot mTeapot;
+
+    private CloudReco mActivity;
+
+    private boolean mIsActive = false;
+
+    Matrix44F modelViewMatrix[] = new Matrix44F[CloudReco.NUM_TARGETS];
+    boolean isTracking[] = new boolean[CloudReco.NUM_TARGETS];
+    VideoPlayerHelper.MEDIA_STATE currentStatus[] = new VideoPlayerHelper.MEDIA_STATE[CloudReco.NUM_TARGETS];
 
     // These hold the aspect ratio of both the video and the
     // keyframe
-    float videoQuadAspectRatio[] = new float[VideoPlayback.NUM_TARGETS];
-    float keyframeQuadAspectRatio[] = new float[VideoPlayback.NUM_TARGETS];
+    float videoQuadAspectRatio[] = new float[CloudReco.NUM_TARGETS];
+    float keyframeQuadAspectRatio[] = new float[CloudReco.NUM_TARGETS];
 
+    Vec3F targetPositiveDimensions[] = new Vec3F[CloudReco.NUM_TARGETS];
 
-    public VideoPlaybackRenderer(VideoPlayback activity,
-                                 ApplicationSession session, Context context)
+    public CloudRecoRenderer(ApplicationSession session, CloudReco activity, Context context)
     {
         this.context = context;
-        mActivity = activity;
         vuforiaAppSession = session;
+        mActivity = activity;
 
         // AppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
         mAppRenderer = new AppRenderer(this, mActivity, Device.MODE.MODE_AR, false, 0.01f, 5f);
 
         // Create an array of the size of the number of targets we have
-        mVideoPlayerHelper = new VideoPlayerHelper[VideoPlayback.NUM_TARGETS];
-        mMovieName = new String[VideoPlayback.NUM_TARGETS];
-        mCanRequestType = new MEDIA_TYPE[VideoPlayback.NUM_TARGETS];
-        mSeekPosition = new int[VideoPlayback.NUM_TARGETS];
-        mShouldPlayImmediately = new boolean[VideoPlayback.NUM_TARGETS];
-        mLostTrackingSince = new long[VideoPlayback.NUM_TARGETS];
-        mLoadRequested = new boolean[VideoPlayback.NUM_TARGETS];
-        mTexCoordTransformationMatrix = new float[VideoPlayback.NUM_TARGETS][16];
+        mVideoPlayerHelper = new VideoPlayerHelper[CloudReco.NUM_TARGETS];
+        mMovieName = new String[CloudReco.NUM_TARGETS];
+        mCanRequestType = new VideoPlayerHelper.MEDIA_TYPE[CloudReco.NUM_TARGETS];
+        mSeekPosition = new int[CloudReco.NUM_TARGETS];
+        mShouldPlayImmediately = new boolean[CloudReco.NUM_TARGETS];
+        mLostTrackingSince = new long[CloudReco.NUM_TARGETS];
+        mLoadRequested = new boolean[CloudReco.NUM_TARGETS];
+        mTexCoordTransformationMatrix = new float[CloudReco.NUM_TARGETS][16];
 
         // Initialize the arrays to default values
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
+        for (int i = 0; i < CloudReco.NUM_TARGETS; i++)
         {
             mVideoPlayerHelper[i] = null;
             mMovieName[i] = "";
-            mCanRequestType[i] = MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
+            mCanRequestType[i] = VideoPlayerHelper.MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
             mSeekPosition[i] = 0;
             mShouldPlayImmediately[i] = false;
             mLostTrackingSince[i] = -1;
             mLoadRequested[i] = false;
         }
 
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
+        for (int i = 0; i < CloudReco.NUM_TARGETS; i++)
             targetPositiveDimensions[i] = new Vec3F();
 
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
+        for (int i = 0; i < CloudReco.NUM_TARGETS; i++)
             modelViewMatrix[i] = new Matrix44F();
     }
 
 
-    // Store the Player Helper object passed from the main activity
-    public void setVideoPlayerHelper(int target,
-                                     VideoPlayerHelper newVideoPlayerHelper)
-    {
-        mVideoPlayerHelper[target] = newVideoPlayerHelper;
-    }
-
-
-    public void requestLoad(int target, String movieName, int seekPosition,
-                            boolean playImmediately)
-    {
-        mMovieName[target] = movieName;
-        mSeekPosition[target] = seekPosition;
-        mShouldPlayImmediately[target] = playImmediately;
-        mLoadRequested[target] = true;
-    }
-
-
     // Called when the surface is created or recreated.
+    @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
-        // Call function to initialize rendering:
-        // The video texture is also created on this step
-        initRendering();
-
+       // mActivity.startFinderIfStopped();
         // Call Vuforia function to (re)initialize rendering after first use
         // or after OpenGL ES context was lost (e.g. after onPause/onResume):
-        Vuforia.onSurfaceCreated();
+        vuforiaAppSession.onSurfaceCreated();
 
         mAppRenderer.onSurfaceCreated();
-
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
-        {
-
-            if (mVideoPlayerHelper[i] != null)
-            {
-                // The VideoPlayerHelper needs to setup a surface texture given
-                // the texture id
-                // Here we inform the video player that we would like to play
-                // the movie
-                // both on texture and on full screen
-                // Notice that this does not mean that the platform will be able
-                // to do what we request
-                // After the file has been loaded one must always check with
-                // isPlayableOnTexture() whether
-                // this can be played embedded in the AR scene
-                if (!mVideoPlayerHelper[i]
-                        .setupSurfaceTexture(videoPlaybackTextureID[i]))
-                    mCanRequestType[i] = MEDIA_TYPE.FULLSCREEN;
-                else
-                    mCanRequestType[i] = MEDIA_TYPE.ON_TEXTURE_FULLSCREEN;
-
-                // And now check if a load has been requested with the
-                // parameters passed from the main activity
-                if (mLoadRequested[i])
-                {
-                    mVideoPlayerHelper[i].load(mMovieName[i],
-                            mCanRequestType[i], mShouldPlayImmediately[i],
-                            mSeekPosition[i]);
-                    mLoadRequested[i] = false;
-                }
-            }
-        }
     }
 
 
     // Called when the surface changed size.
+    @Override
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
+        //mActivity.startFinderIfStopped();
         // Call Vuforia function to handle render surface size changes:
-        Vuforia.onSurfaceChanged(width, height);
+        vuforiaAppSession.onSurfaceChanged(width, height);
 
         // RenderingPrimitives to be updated when some rendering change is done
         mAppRenderer.onConfigurationChanged(mIsActive);
 
-        // Upon every on pause the movie had to be unloaded to release resources
-        // Thus, upon every surface create or surface change this has to be
-        // reloaded
-        // See:
-        // http://developer.android.com/reference/android/media/MediaPlayer.html#release()
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
-        {
-            if (mLoadRequested[i] && mVideoPlayerHelper[i] != null)
-            {
-                mVideoPlayerHelper[i].load(mMovieName[i], mCanRequestType[i],
-                        mShouldPlayImmediately[i], mSeekPosition[i]);
-                mLoadRequested[i] = false;
-            }
-        }
+        // Call function to initialize rendering:
+        initRendering();
     }
 
 
     // Called to draw the current frame.
+    @Override
     public void onDrawFrame(GL10 gl)
     {
-        if (!mIsActive)
-            return;
-
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
-        {
-            if (mVideoPlayerHelper[i] != null)
-            {
-                if (mVideoPlayerHelper[i].isPlayableOnTexture())
-                {
-                    // First we need to update the video data. This is a built
-                    // in Android call
-                    // Here, the decoded data is uploaded to the OES texture
-                    // We only need to do this if the movie is playing
-                    if (mVideoPlayerHelper[i].getStatus() == MEDIA_STATE.PLAYING)
-                    {
-                        mVideoPlayerHelper[i].updateVideoData();
-                    }
-
-                    // According to the Android API
-                    // (http://developer.android.com/reference/android/graphics/SurfaceTexture.html)
-                    // transforming the texture coordinates needs to happen
-                    // every frame.
-                    mVideoPlayerHelper[i]
-                            .getSurfaceTextureTransformMatrix(mTexCoordTransformationMatrix[i]);
-                    setVideoDimensions(i,
-                            mVideoPlayerHelper[i].getVideoWidth(),
-                            mVideoPlayerHelper[i].getVideoHeight(),
-                            mTexCoordTransformationMatrix[i]);
-                }
-
-                setStatus(i, mVideoPlayerHelper[i].getStatus().getNumericType());
-            }
-        }
-
         // Call our function to render content from AppRenderer class
         mAppRenderer.render();
-
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
-        {
-            // Ask whether the target is currently being tracked and if so react
-            // to it
-            if (isTracking(i))
-            {
-                // If it is tracking reset the timestamp for lost tracking
-                mLostTrackingSince[i] = -1;
-            } else
-            {
-                // If it isn't tracking
-                // check whether it just lost it or if it's been a while
-                if (mLostTrackingSince[i] < 0)
-                    mLostTrackingSince[i] = SystemClock.uptimeMillis();
-                else
-                {
-                    // If it's been more than 2 seconds then pause the player
-                    if ((SystemClock.uptimeMillis() - mLostTrackingSince[i]) > 2000)
-                    {
-                        if (mVideoPlayerHelper[i] != null)
-                            mVideoPlayerHelper[i].pause();
-                    }
-                }
-            }
-        }
-
-        // If you would like the video to start playing as soon as it starts
-        // tracking
-        // and pause as soon as tracking is lost you can do that here by
-        // commenting
-        // the for-loop above and instead checking whether the isTracking()
-        // value has
-        // changed since the last frame. Notice that you need to be careful not
-        // to
-        // trigger automatic playback for fullscreen since that will be
-        // inconvenient
-        // for your users.
-
     }
 
 
@@ -369,20 +229,15 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
     }
 
 
-    @SuppressLint("InlinedApi")
-    void initRendering()
+    // Function for initializing the renderer.
+    private void initRendering()
     {
-        Log.d(LOGTAG, "VideoPlayback VideoPlaybackRenderer initRendering");
-
         // Define clear color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f
                 : 1.0f);
 
-        // Now generate the OpenGL texture objects and add settings
         for (Texture t : mTextures)
         {
-            // Here we create the textures for the keyframe
-            // and for all the icons
             GLES20.glGenTextures(1, t.mTextureID, 0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
@@ -396,14 +251,19 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
                     t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
                     GLES20.GL_UNSIGNED_BYTE, t.mData);
+
+       /*     GLES20.glGenTextures(1, t.mTextureID, 0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
+                    GLES20.GL_UNSIGNED_BYTE, t.mData);*/
         }
 
-        // Now we create the texture for the video data from the movie
-        // IMPORTANT:
-        // Notice that the textures are not typical GL_TEXTURE_2D textures
-        // but instead are GL_TEXTURE_EXTERNAL_OES extension textures
-        // This is required by the Android SurfaceTexture
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
+        for (int i = 0; i < CloudReco.NUM_TARGETS; i++)
         {
             GLES20.glGenTextures(1, videoPlaybackTextureID, i);
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
@@ -415,9 +275,6 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         }
 
-        // The first shader is the one that will display the video data of the
-        // movie
-        // (it is aware of the GL_TEXTURE_EXTERNAL_OES extension)
         videoPlaybackShaderID = Utils.createProgramFromShaderSrc(
                 VideoPlaybackShaders.VIDEO_PLAYBACK_VERTEX_SHADER,
                 VideoPlaybackShaders.VIDEO_PLAYBACK_FRAGMENT_SHADER);
@@ -429,6 +286,7 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
                 videoPlaybackShaderID, "modelViewProjectionMatrix");
         videoPlaybackTexrOESHandle = GLES20.glGetUniformLocation(
                 videoPlaybackShaderID, "texrOES");
+
 
         // This is a simpler shader with regular 2D textures
         keyframeShaderID = Utils.createProgramFromShaderSrc(
@@ -443,9 +301,9 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
         keyframeTexr2DHandle = GLES20.glGetUniformLocation(
                 keyframeShaderID, "texr2D");
 
-        keyframeQuadAspectRatio[VideoPlayback.STONES] = (float) mTextures
+        keyframeQuadAspectRatio[CloudReco.STONES] = (float) mTextures
                 .get(0).mHeight / (float) mTextures.get(0).mWidth;
-        keyframeQuadAspectRatio[VideoPlayback.CHIPS] = (float) mTextures.get(1).mHeight
+        keyframeQuadAspectRatio[CloudReco.CHIPS] = (float) mTextures.get(1).mHeight
                 / (float) mTextures.get(1).mWidth;
 
         quadVertices = fillBuffer(quadVerticesArray);
@@ -453,8 +311,20 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
         quadIndices = fillBuffer(quadIndicesArray);
         quadNormals = fillBuffer(quadNormalsArray);
 
-    }
+        shaderProgramID = Utils.createProgramFromShaderSrc(
+                CubeShaders.CUBE_MESH_VERTEX_SHADER,
+                CubeShaders.CUBE_MESH_FRAGMENT_SHADER);
 
+        vertexHandle = GLES20.glGetAttribLocation(shaderProgramID,
+                "vertexPosition");
+        textureCoordHandle = GLES20.glGetAttribLocation(shaderProgramID,
+                "vertexTexCoord");
+        mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID,
+                "modelViewProjectionMatrix");
+        texr2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
+                "texr2D");
+        mTeapot = new Teapot();
+    }
 
     private Buffer fillBuffer(double[] array)
     {
@@ -470,21 +340,20 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
     }
 
-
     private Buffer fillBuffer(short[] array)
-{
-    ByteBuffer bb = ByteBuffer.allocateDirect(2 * array.length); // each
-    // short
-    // takes 2
-    // bytes
-    bb.order(ByteOrder.LITTLE_ENDIAN);
-    for (short s : array)
-        bb.putShort(s);
-    bb.rewind();
+    {
+        ByteBuffer bb = ByteBuffer.allocateDirect(2 * array.length); // each
+        // short
+        // takes 2
+        // bytes
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for (short s : array)
+            bb.putShort(s);
+        bb.rewind();
 
-    return bb;
+        return bb;
 
-}
+    }
 
 
     private Buffer fillBuffer(float[] array)
@@ -502,53 +371,43 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
     }
 
 
-    @SuppressLint("InlinedApi")
+    // The render function.
     // The render function called from AppRendering by using RenderingPrimitives views.
     // The state is owned by AppRenderer which is controlling it's lifecycle.
     // State should not be cached outside this method.
-    public void renderFrame(State state, float[] projectionMatrix)
-    {
+    public void renderFrame(State state, float[] projectionMatrix) {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         // Renders video background replacing Renderer.DrawVideoBackground()
         mAppRenderer.renderVideoBackground();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        //mActivity.startFinderIfStopped();
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-
-        // We must detect if background reflection is active and adjust the
-        // culling direction.
-        // If the reflection is active, this means the post matrix has been
-        // reflected as well,
-        // therefore standard counter clockwise face culling will result in
-        // "inside out" models.
         GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GLES20.glCullFace(GLES20.GL_BACK);
 
-        if(tappingProjectionMatrix == null)
-        {
+        if (tappingProjectionMatrix == null) {
             tappingProjectionMatrix = new Matrix44F();
             tappingProjectionMatrix.setData(projectionMatrix);
         }
 
-        float temp[] = { 0.0f, 0.0f, 0.0f };
-        for (int i = 0; i < VideoPlayback.NUM_TARGETS; i++)
-        {
+        float temp[] = {0.0f, 0.0f, 0.0f};
+        for (int i = 0; i < CloudReco.NUM_TARGETS; i++) {
             isTracking[i] = false;
             targetPositiveDimensions[i].setData(temp);
         }
 
+
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
             startedIntent = false;
-            // Get the trackable:
             TrackableResult trackableResult = state.getTrackableResult(tIdx);
+            mActivity.startFinderIfStopped();
 
-            imageTarget = (ImageTarget) trackableResult
-                    .getTrackable();
-
+            imageTarget = (ImageTarget) trackableResult.getTrackable();
             int currentTarget;
 
-            if(!imageTarget.getName().equals("quiz_icon")) {
+            if (!imageTarget.getName().equals("quiz_icon")) {
                 mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -563,34 +422,36 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
             }
             // We store the modelview matrix to be used later by the tap
             // calculation
-            if(imageTarget.getName().equals("quiz_icon")){
+            if (imageTarget.getName().equals("quiz_icon")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         Intent intent = new Intent(context, QuizScreen.class);
-                        if(startedIntent == false) {
+                        if (startedIntent == false) {
+                            mActivity.stopFinderIfStarted();
                             context.startActivity(intent);
                             startedIntent = true;
                         }
                     }
                 }, 2000);
-            }
-            else if (type != null && type.equals("text")) {
+            } else if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         trackableName = imageTarget.getName();
                         Intent intent = new Intent(context, TargetInformation.class);
                         intent.putExtra("Dataset", trackableName);
-                        if(startedIntent == false) {
+                        if (startedIntent == false) {
+                            mActivity.stopFinderIfStarted();
                             context.startActivity(intent);
                             startedIntent = true;
+
                         }
 
                     }
                 }, 2000);
-            } else if(type != null && type.equals("video")){
-                currentTarget = VideoPlayback.CHIPS;
+            } else if (type != null && type.equals("video")) {
+                currentTarget = CloudReco.CHIPS;
 
 
                 modelViewMatrix[currentTarget] = Tool
@@ -834,176 +695,60 @@ public class VideoPlaybackRenderer implements GLSurfaceView.Renderer, AppRendere
 
                 Utils.checkGLError("VideoPlayback renderFrame");
             }
-
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-
             Renderer.getInstance().end();
-        }
 
-    }
-
-
-    boolean isTapOnScreenInsideTarget(int target, float x, float y)
-    {
-        // Here we calculate that the touch event is inside the target
-        Vec3F intersection;
-        // Vec3F lineStart = new Vec3F();
-        // Vec3F lineEnd = new Vec3F();
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        intersection = VuforiaMath.getPointToPlaneIntersection(VuforiaMath
-                        .Matrix44FInverse(tappingProjectionMatrix),
-                modelViewMatrix[target], metrics.widthPixels, metrics.heightPixels,
-                new Vec2F(x, y), new Vec3F(0, 0, 0), new Vec3F(0, 0, 1));
-
-        // The target returns as pose the center of the trackable. The following
-        // if-statement simply checks that the tap is within this range
-        if ((intersection.getData()[0] >= -(targetPositiveDimensions[target]
-                .getData()[0]))
-                && (intersection.getData()[0] <= (targetPositiveDimensions[target]
-                .getData()[0]))
-                && (intersection.getData()[1] >= -(targetPositiveDimensions[target]
-                .getData()[1]))
-                && (intersection.getData()[1] <= (targetPositiveDimensions[target]
-                .getData()[1])))
-            return true;
-        else
-            return false;
-    }
-
-
-    void setVideoDimensions(int target, float videoWidth, float videoHeight,
-                            float[] textureCoordMatrix)
-    {
-        // The quad originaly comes as a perfect square, however, the video
-        // often has a different aspect ration such as 4:3 or 16:9,
-        // To mitigate this we have two options:
-        // 1) We can either scale the width (typically up)
-        // 2) We can scale the height (typically down)
-        // Which one to use is just a matter of preference. This example scales
-        // the height down.
-        // (see the render call in renderFrame)
-        videoQuadAspectRatio[target] = videoHeight / videoWidth;
-
-        float mtx[] = textureCoordMatrix;
-        float tempUVMultRes[] = new float[2];
-
-        if (target == VideoPlayback.STONES)
-        {
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedStones[0],
-                    videoQuadTextureCoordsTransformedStones[1],
-                    videoQuadTextureCoords[0], videoQuadTextureCoords[1], mtx);
-            videoQuadTextureCoordsTransformedStones[0] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedStones[1] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedStones[2],
-                    videoQuadTextureCoordsTransformedStones[3],
-                    videoQuadTextureCoords[2], videoQuadTextureCoords[3], mtx);
-            videoQuadTextureCoordsTransformedStones[2] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedStones[3] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedStones[4],
-                    videoQuadTextureCoordsTransformedStones[5],
-                    videoQuadTextureCoords[4], videoQuadTextureCoords[5], mtx);
-            videoQuadTextureCoordsTransformedStones[4] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedStones[5] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedStones[6],
-                    videoQuadTextureCoordsTransformedStones[7],
-                    videoQuadTextureCoords[6], videoQuadTextureCoords[7], mtx);
-            videoQuadTextureCoordsTransformedStones[6] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedStones[7] = tempUVMultRes[1];
-        } else if (target == VideoPlayback.CHIPS)
-        {
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedChips[0],
-                    videoQuadTextureCoordsTransformedChips[1],
-                    videoQuadTextureCoords[0], videoQuadTextureCoords[1], mtx);
-            videoQuadTextureCoordsTransformedChips[0] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedChips[1] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedChips[2],
-                    videoQuadTextureCoordsTransformedChips[3],
-                    videoQuadTextureCoords[2], videoQuadTextureCoords[3], mtx);
-            videoQuadTextureCoordsTransformedChips[2] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedChips[3] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedChips[4],
-                    videoQuadTextureCoordsTransformedChips[5],
-                    videoQuadTextureCoords[4], videoQuadTextureCoords[5], mtx);
-            videoQuadTextureCoordsTransformedChips[4] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedChips[5] = tempUVMultRes[1];
-            tempUVMultRes = uvMultMat4f(
-                    videoQuadTextureCoordsTransformedChips[6],
-                    videoQuadTextureCoordsTransformedChips[7],
-                    videoQuadTextureCoords[6], videoQuadTextureCoords[7], mtx);
-            videoQuadTextureCoordsTransformedChips[6] = tempUVMultRes[0];
-            videoQuadTextureCoordsTransformedChips[7] = tempUVMultRes[1];
-        }
-
-        // textureCoordMatrix = mtx;
-    }
-
-
-    // Multiply the UV coordinates by the given transformation matrix
-    float[] uvMultMat4f(float transformedU, float transformedV, float u,
-                        float v, float[] pMat)
-    {
-        float x = pMat[0] * u + pMat[4] * v /* + pMat[ 8]*0.f */+ pMat[12]
-                * 1.f;
-        float y = pMat[1] * u + pMat[5] * v /* + pMat[ 9]*0.f */+ pMat[13]
-                * 1.f;
-        // float z = pMat[2]*u + pMat[6]*v + pMat[10]*0.f + pMat[14]*1.f; // We
-        // dont need z and w so we comment them out
-        // float w = pMat[3]*u + pMat[7]*v + pMat[11]*0.f + pMat[15]*1.f;
-
-        float result[] = new float[2];
-        // transformedU = x;
-        // transformedV = y;
-        result[0] = x;
-        result[1] = y;
-        return result;
-    }
-
-
-    void setStatus(int target, int value)
-    {
-        // Transform the value passed from java to our own values
-        switch (value)
-        {
-            case 0:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.REACHED_END;
-                break;
-            case 1:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.PAUSED;
-                break;
-            case 2:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.STOPPED;
-                break;
-            case 3:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.PLAYING;
-                break;
-            case 4:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.READY;
-                break;
-            case 5:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.NOT_READY;
-                break;
-            case 6:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.ERROR;
-                break;
-            default:
-                currentStatus[target] = VideoPlayerHelper.MEDIA_STATE.NOT_READY;
-                break;
         }
     }
 
 
-    boolean isTracking(int target)
+
+
+
+    private void renderAugmentation(TrackableResult trackableResult, float[] projectionMatrix)
     {
-        return isTracking[target];
+        Matrix44F modelViewMatrix_Vuforia = Tool
+                .convertPose2GLMatrix(trackableResult.getPose());
+        float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
+
+        int textureIndex = 0;
+
+        // deal with the modelview and projection matrices
+        float[] modelViewProjection = new float[16];
+        Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f, OBJECT_SCALE_FLOAT);
+        Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT,
+                OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
+        Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
+
+        // activate the shader program and bind the vertex/normal/tex coords
+        GLES20.glUseProgram(shaderProgramID);
+        GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false,
+                0, mTeapot.getVertices());
+        GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT,
+                false, 0, mTeapot.getTexCoords());
+
+        GLES20.glEnableVertexAttribArray(vertexHandle);
+        GLES20.glEnableVertexAttribArray(textureCoordHandle);
+
+        // activate texture 0, bind it, and pass to shader
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+                mTextures.get(textureIndex).mTextureID[0]);
+        GLES20.glUniform1i(texr2DHandle, 0);
+
+        // pass the model view matrix to the shader
+        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
+                modelViewProjection, 0);
+
+        // finally draw the teapot
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mTeapot.getNumObjectIndex(),
+                GLES20.GL_UNSIGNED_SHORT, mTeapot.getIndices());
+
+        // disable the enabled arrays
+        GLES20.glDisableVertexAttribArray(vertexHandle);
+        GLES20.glDisableVertexAttribArray(textureCoordHandle);
+
+        Utils.checkGLError("CloudReco renderFrame");
     }
 
 

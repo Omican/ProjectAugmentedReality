@@ -45,14 +45,14 @@ public class TargetInformation extends Activity {
         Intent intent = getIntent();
         String name = intent.getStringExtra("Dataset");
 
-        StorageReference image = mStorageRef.child(name + ".jpg");
+        StorageReference image = mStorageRef.child(name);
 
         Glide.with(this)
                 .using(new FirebaseImageLoader())
                 .load(image)
                 .into(TargetInfoImage);
 
-                mDatabase.child("Koude_Oorlog").child(name).child("text").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("text").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         String text = dataSnapshot.getValue().toString();

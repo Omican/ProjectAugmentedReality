@@ -20,7 +20,7 @@ import com.par.projectaugmentedreality.R;
 public class ActivityLauncher extends ListActivity
 {
 
-    private String mActivities[] = { "Image Targets", "VideoPlayback"};
+    private String mActivities[] = { "Image Targets", "VideoPlayback", "Cloud Reco"};
 
 
     @Override
@@ -57,6 +57,12 @@ public class ActivityLauncher extends ListActivity
                 intent.putExtra("ACTIVITY_TO_LAUNCH",
                         "VideoPlayback.VideoPlayback");
                 intent.putExtra("ABOUT_TEXT_TITLE", "Video Playback");
+                intent.putExtra("ABOUT_TEXT", "VideoPlayback/VP_about.html");
+                break;
+            case 2:
+                intent.putExtra("ACTIVITY_TO_LAUNCH",
+                        "CloudReco");
+                intent.putExtra("ABOUT_TEXT_TITLE", "Cloud Reco");
                 intent.putExtra("ABOUT_TEXT", "VideoPlayback/VP_about.html");
                 break;
         }

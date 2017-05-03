@@ -62,7 +62,6 @@ public class QuizScreen extends Activity {
     RadioGroup quizRadiogroup;
     ArrayList<String> answerList;
     ArrayList<String> correctAnswers;
-    LinearLayout layout;
     String answers;
     String correctAnswerText;
     int x = 1;
@@ -99,16 +98,14 @@ public class QuizScreen extends Activity {
         if(x <= numTrackables - 1){
             Trackable trackable = state.getTrackable(x);
             String name = trackable.getName();
-            if(name.equals("quiz_icon")){
-                x++;
-            }
-            else {
-                StorageReference image = mStorageRef.child(name + ".jpg");
+
+            if(!name.equals("quiz_icon")){
+                StorageReference image = mStorageRef.child(name);
                 Glide.with(this)
                         .using(new FirebaseImageLoader())
                         .load(image)
                         .into(quizImage);
-                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerA").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("quizAnswerA").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         answerOne.setText(dataSnapshot.getValue().toString());
@@ -119,7 +116,7 @@ public class QuizScreen extends Activity {
 
                     }
                 });
-                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerB").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("quizAnswerB").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         answerTwo.setText(dataSnapshot.getValue().toString());
@@ -130,7 +127,7 @@ public class QuizScreen extends Activity {
 
                     }
                 });
-                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerC").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("quizAnswerC").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         answerThree.setText(dataSnapshot.getValue().toString());
@@ -141,7 +138,7 @@ public class QuizScreen extends Activity {
 
                     }
                 });
-                mDatabase.child("Koude_Oorlog").child(name).child("quizAnswerD").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("quizAnswerD").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         answerFour.setText(dataSnapshot.getValue().toString());
@@ -152,7 +149,7 @@ public class QuizScreen extends Activity {
 
                     }
                 });
-                mDatabase.child("Koude_Oorlog").child(name).child("quizQuestion").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("quizQuestion").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         question.setText(dataSnapshot.getValue().toString());
@@ -163,7 +160,7 @@ public class QuizScreen extends Activity {
 
                     }
                 });
-                mDatabase.child("Koude_Oorlog").child(name).child("correctAnswer").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(name).child("correctAnswer").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         correctAnswers.add(dataSnapshot.getValue().toString());
@@ -175,7 +172,11 @@ public class QuizScreen extends Activity {
                     }
                 });
             }
-        } else {
+            else {
+                x++;
+            }
+        }
+        else {
                 showAnswers();
         }
     }

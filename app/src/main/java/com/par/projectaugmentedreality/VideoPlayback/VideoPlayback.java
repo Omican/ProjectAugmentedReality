@@ -31,6 +31,7 @@ import com.vuforia.HINT;
 import com.vuforia.ObjectTracker;
 import com.vuforia.State;
 import com.vuforia.STORAGE_TYPE;
+import com.vuforia.TargetFinder;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
@@ -71,6 +72,27 @@ public class VideoPlayback extends Activity implements
     private int mSeekPosition[] = null;
     private boolean mWasPlaying[] = null;
     private String mMovieName[] = null;
+
+    private static final String kAccessKey = "ec0717ab6561e8ea675f42877f3783000af3ad2a";
+    private static final String kSecretKey = "353e54fd19c51a0e4bc4e66c59b4fec4c73c3a2b";
+
+    private int mlastErrorCode = 0;
+    private int mInitErrorCode = 0;
+
+    static final int INIT_SUCCESS = 2;
+    static final int INIT_ERROR_NO_NETWORK_CONNECTION = -1;
+    static final int INIT_ERROR_SERVICE_NOT_AVAILABLE = -2;
+    static final int UPDATE_ERROR_AUTHORIZATION_FAILED = -1;
+    static final int UPDATE_ERROR_PROJECT_SUSPENDED = -2;
+    static final int UPDATE_ERROR_NO_NETWORK_CONNECTION = -3;
+    static final int UPDATE_ERROR_SERVICE_NOT_AVAILABLE = -4;
+    static final int UPDATE_ERROR_BAD_FRAME_QUALITY = -5;
+    static final int UPDATE_ERROR_UPDATE_SDK = -6;
+    static final int UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE = -7;
+    static final int UPDATE_ERROR_REQUEST_TIMEOUT = -8;
+
+    static final int HIDE_LOADING_DIALOG = 0;
+    static final int SHOW_LOADING_DIALOG = 1;
 
     // A boolean to indicate whether we come from full screen:
     private boolean mReturningFromFullScreen = false;
@@ -223,6 +245,56 @@ public class VideoPlayback extends Activity implements
         });
     }
 
+    // Returns the error message for each error code
+    private String getStatusDescString(int code)
+    {
+        if (code == UPDATE_ERROR_AUTHORIZATION_FAILED)
+            return getString(R.string.UPDATE_ERROR_AUTHORIZATION_FAILED_DESC);
+        if (code == UPDATE_ERROR_PROJECT_SUSPENDED)
+            return getString(R.string.UPDATE_ERROR_PROJECT_SUSPENDED_DESC);
+        if (code == UPDATE_ERROR_NO_NETWORK_CONNECTION)
+            return getString(R.string.UPDATE_ERROR_NO_NETWORK_CONNECTION_DESC);
+        if (code == UPDATE_ERROR_SERVICE_NOT_AVAILABLE)
+            return getString(R.string.UPDATE_ERROR_SERVICE_NOT_AVAILABLE_DESC);
+        if (code == UPDATE_ERROR_UPDATE_SDK)
+            return getString(R.string.UPDATE_ERROR_UPDATE_SDK_DESC);
+        if (code == UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE)
+            return getString(R.string.UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE_DESC);
+        if (code == UPDATE_ERROR_REQUEST_TIMEOUT)
+            return getString(R.string.UPDATE_ERROR_REQUEST_TIMEOUT_DESC);
+        if (code == UPDATE_ERROR_BAD_FRAME_QUALITY)
+            return getString(R.string.UPDATE_ERROR_BAD_FRAME_QUALITY_DESC);
+        else
+        {
+            return getString(R.string.UPDATE_ERROR_UNKNOWN_DESC);
+        }
+    }
+
+
+    // Returns the error message for each error code
+    private String getStatusTitleString(int code)
+    {
+        if (code == UPDATE_ERROR_AUTHORIZATION_FAILED)
+            return getString(R.string.UPDATE_ERROR_AUTHORIZATION_FAILED_TITLE);
+        if (code == UPDATE_ERROR_PROJECT_SUSPENDED)
+            return getString(R.string.UPDATE_ERROR_PROJECT_SUSPENDED_TITLE);
+        if (code == UPDATE_ERROR_NO_NETWORK_CONNECTION)
+            return getString(R.string.UPDATE_ERROR_NO_NETWORK_CONNECTION_TITLE);
+        if (code == UPDATE_ERROR_SERVICE_NOT_AVAILABLE)
+            return getString(R.string.UPDATE_ERROR_SERVICE_NOT_AVAILABLE_TITLE);
+        if (code == UPDATE_ERROR_UPDATE_SDK)
+            return getString(R.string.UPDATE_ERROR_UPDATE_SDK_TITLE);
+        if (code == UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE)
+            return getString(R.string.UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE_TITLE);
+        if (code == UPDATE_ERROR_REQUEST_TIMEOUT)
+            return getString(R.string.UPDATE_ERROR_REQUEST_TIMEOUT_TITLE);
+        if (code == UPDATE_ERROR_BAD_FRAME_QUALITY)
+            return getString(R.string.UPDATE_ERROR_BAD_FRAME_QUALITY_TITLE);
+        else
+        {
+            return getString(R.string.UPDATE_ERROR_UNKNOWN_TITLE);
+        }
+    }
 
     // We want to load specific textures from the APK, which we will later
     // use for rendering.
@@ -526,7 +598,32 @@ public class VideoPlayback extends Activity implements
         TrackerManager trackerManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) trackerManager
                 .getTracker(ObjectTracker.getClassType());
-        if (objectTracker == null)
+
+        // Initialize target finder:
+        TargetFinder targetFinder = objectTracker.getTargetFinder();
+
+        // Start initialization:
+        if (targetFinder.startInit(kAccessKey, kSecretKey))
+        {
+            targetFinder.waitUntilInitFinished();
+        }
+
+        int resultCode = targetFinder.getInitState();
+        if (resultCode != TargetFinder.INIT_SUCCESS)
+        {
+            if(resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION)
+            {
+                mInitErrorCode = UPDATE_ERROR_NO_NETWORK_CONNECTION;
+            }
+            else
+            {
+                mInitErrorCode = UPDATE_ERROR_SERVICE_NOT_AVAILABLE;
+            }
+
+            Log.e(LOGTAG, "Failed to initialize target finder.");
+            return false;
+        }
+  /*      if (objectTracker == null)
         {
             Log.d(
                     LOGTAG,
@@ -557,7 +654,7 @@ public class VideoPlayback extends Activity implements
             return false;
         }
 
-        Log.d(LOGTAG, "Successfully loaded and activated data set.");
+        Log.d(LOGTAG, "Successfully loaded and activated data set.");*/
         return true;
     }
 

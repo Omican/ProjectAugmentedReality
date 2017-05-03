@@ -326,7 +326,7 @@ public class ApplicationSession implements UpdateCallbackInterface
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mShutdownLock)
             {
-                Vuforia.setInitParameters(mActivity, mVuforiaFlags, "ARuaBdX/////AAAAGc0oBKHYw00Jhzh3OBiWNf52kx6tibW2t4cxUlVvyIBd/iTpdvZaKM1QKDVWY66g9urI4K141gx+7m0uazdKEjOFlZhe4zw1VqI/m9hLvGcnoasfU4zUil/H9W7UNZl03FsNgs00lktUq+TV+NvIX2KXzj/shXd64AZyyWsvuZ54I/Ujk9xUb0i/J++rbG8PlJScijoPjSQoHKMZMdyQBX1MBK0QJNkzwrQsyGTxzYovLhhRmdDHzTpPwol4FtMxvmDgG88Xco0h2z+rzDf/FM9BhfaDOalNZvuS4vAlhfPrIsq+D3r6+3H+MXup0XOqTb7MrOrFOZZqM8ch6xemZNiaTfcI1YTDH9cHcm+kYFRQ");
+                Vuforia.setInitParameters(mActivity, mVuforiaFlags, "AfEEwYD/////AAAAGdy471MeyEmkptt1gAySiR9O2cBLg67sDVkG5bcP4H8Kfpr2n4yGIfYx0tavYsEfqBu7X9QX96MAJf02DXh8T2zNAbO6t8xS+iEzPGMMvG4SAwVz6HW2u1QGrGPQqYvLFhBYr9kNumZvoEMRXchDI7F7UgyVbKcdXiTdCBdf4n7jWT4vlHmnatLUBkByRsTqf8Dn/kTEFvzgZXBGAVwM5Put8aNiZP1+96eaBTuPYkCrI1uEGfuv9VSOYcLSBO+pbpI5PSBQ5yHSEQjI5dXa41skrl4gmk4qOwqqfziQVMFu2q46D/I2JfJg0Ax2jyyeKCLulvBiwxmp+64UjFOZWF+fJvZ9Lntu6Sce7vKcDrwp");
 
                 do
                 {
