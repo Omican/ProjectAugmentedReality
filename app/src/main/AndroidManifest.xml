@@ -130,7 +130,14 @@
         </activity>
         <activity android:name=".TargetInformation" />
         <activity android:name=".QuizScreen" />
-        <activity android:name=".QuizAnswerScreen"></activity>
+        <activity android:name=".QuizAnswerScreen" />
+        <activity android:name=".StandalonePlayerActivity" />
+        <activity
+            android:name=".FullscreenActivity"
+            android:label="@string/title_activity_fullscreen" />
+        <activity
+            android:name=".YoutubeFailureRecoveryActivity"
+            android:label="@string/title_activity_youtube_failure_recovery"></activity>
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ package com.par.projectaugmentedreality;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -41,6 +42,7 @@ import com.vuforia.TargetFinder;
 import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
+import com.vuforia.TrackerManager;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.vuforia.Vec3F;
 import com.vuforia.Vuforia;
@@ -60,10 +62,12 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
     private ApplicationSession vuforiaAppSession;
     private AppRenderer mAppRenderer;
     private String type;
+    private String URL;
     ImageTarget imageTarget;
     String trackableName;
     boolean startedIntent;
     private Context context;
+    private ArrayList<String> imageTargetList = new ArrayList<>();
 
     private DatabaseReference mDatabase;
 
@@ -355,7 +359,6 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
 
     }
 
-
     private Buffer fillBuffer(float[] array)
     {
         // Convert to floats because OpenGL doesnt work on doubles, and manually
@@ -376,6 +379,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
     // The state is owned by AppRenderer which is controlling it's lifecycle.
     // State should not be cached outside this method.
     public void renderFrame(State state, float[] projectionMatrix) {
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Renders video background replacing Renderer.DrawVideoBackground()
         mAppRenderer.renderVideoBackground();
@@ -396,7 +400,6 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             isTracking[i] = false;
             targetPositiveDimensions[i].setData(temp);
         }
-
 
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
@@ -419,6 +422,17 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
 
                     }
                 });
+                mDatabase.child(imageTarget.getName()).child("videoUrl").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        URL = dataSnapshot.getValue().toString();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
             // We store the modelview matrix to be used later by the tap
             // calculation
@@ -427,6 +441,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                     @Override
                     public void run() {
                         Intent intent = new Intent(context, QuizScreen.class);
+                        intent.putStringArrayListExtra("ImageTargets", imageTargetList);
                         if (startedIntent == false) {
                             mActivity.stopFinderIfStarted();
                             context.startActivity(intent);
@@ -451,7 +466,18 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                     }
                 }, 2000);
             } else if (type != null && type.equals("video")) {
-                currentTarget = CloudReco.CHIPS;
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(context, FullscreenActivity.class);
+                        intent.putExtra("VideoURL", URL);
+                        if (startedIntent == false) {
+                            mActivity.stopFinderIfStarted();
+                            context.startActivity(intent);
+                            startedIntent = true;
+                        }
+                    }
+              /*  currentTarget = CloudReco.CHIPS;
 
 
                 modelViewMatrix[currentTarget] = Tool
@@ -696,8 +722,10 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                 Utils.checkGLError("VideoPlayback renderFrame");
             }
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-            Renderer.getInstance().end();
+            Renderer.getInstance().end();*/
 
+                }, 2000);
+            }
         }
     }
 

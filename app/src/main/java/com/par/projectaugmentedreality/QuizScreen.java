@@ -2,6 +2,9 @@ package com.par.projectaugmentedreality;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,6 +49,7 @@ import org.w3c.dom.Text;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -64,7 +68,12 @@ public class QuizScreen extends Activity {
     ArrayList<String> correctAnswers;
     String answers;
     String correctAnswerText;
-    int x = 1;
+    int size = 0;
+    int x = 0;
+    int correctAnswerCount = 0;
+    ArrayList<String> childNames;
+    ArrayList<String> imageTargetNames;
+    RadioButton button;
 
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
@@ -86,99 +95,127 @@ public class QuizScreen extends Activity {
         quizImage = (ImageView) findViewById(R.id.quiz_image);
         answerList = new ArrayList<String>();
         correctAnswers = new ArrayList<String>();
+        childNames = new ArrayList<String>();
+
+        Intent intent = getIntent();
+        imageTargetNames = intent.getStringArrayListExtra("ImageTargets");
+
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String name = postSnapshot.getKey();
+                    size++;
+                    childNames.add(name);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         setText();
     }
 
     public void setText(){
-        StateUpdater tManager = TrackerManager.getInstance().getStateUpdater();
-        State state =  tManager.getLatestState();
 
-        int numTrackables = state.getNumTrackables();
-        if(x <= numTrackables - 1){
-            Trackable trackable = state.getTrackable(x);
-            String name = trackable.getName();
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(x <= size - 1){
+                    String name = childNames.get(x);
 
-            if(!name.equals("quiz_icon")){
-                StorageReference image = mStorageRef.child(name);
-                Glide.with(this)
-                        .using(new FirebaseImageLoader())
-                        .load(image)
-                        .into(quizImage);
-                mDatabase.child(name).child("quizAnswerA").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        answerOne.setText(dataSnapshot.getValue().toString());
+                    if(!name.equals("quiz_icon")){
+                        StorageReference image = mStorageRef.child(name);
+                        Glide.with(getApplication().getApplicationContext())
+                                .using(new FirebaseImageLoader())
+                                .load(image)
+                                .into(quizImage);
+                        mDatabase.child(name).child("quizAnswerA").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                answerOne.setText(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        mDatabase.child(name).child("quizAnswerB").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                answerTwo.setText(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        mDatabase.child(name).child("quizAnswerC").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                answerThree.setText(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        mDatabase.child(name).child("quizAnswerD").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                answerFour.setText(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        mDatabase.child(name).child("quizQuestion").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                question.setText(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        mDatabase.child(name).child("correctAnswer").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                correctAnswers.add(dataSnapshot.getValue().toString());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
+                    else {
+                        x++;
                     }
-                });
-                mDatabase.child(name).child("quizAnswerB").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        answerTwo.setText(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                mDatabase.child(name).child("quizAnswerC").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        answerThree.setText(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                mDatabase.child(name).child("quizAnswerD").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        answerFour.setText(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                mDatabase.child(name).child("quizQuestion").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        question.setText(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                mDatabase.child(name).child("correctAnswer").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        correctAnswers.add(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                }
+                else {
+                    showAnswers();
+                }
             }
-            else {
-                x++;
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
-        }
-        else {
-                showAnswers();
-        }
+        });
+
+
     }
 
     public void hideText(){
@@ -195,10 +232,24 @@ public class QuizScreen extends Activity {
             return;
         }else {
             int selected = quizRadiogroup.getCheckedRadioButtonId();
-            RadioButton button = (RadioButton) findViewById(selected);
+            button = (RadioButton) findViewById(selected);
             answerList.add(button.getText().toString());
-            x++;
-            setText();
+            if(answerList.get(x).equals(correctAnswers.get(x))){
+                button.setTextColor(Color.GREEN);
+            }else {
+                button.setTextColor(Color.RED);
+            }
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    button.setTextColor(Color.BLACK);
+                    quizRadiogroup.clearCheck();
+                    x++;
+                    setText();
+                }
+            }, 1000);
+
+
         }
     }
 
@@ -206,9 +257,10 @@ public class QuizScreen extends Activity {
         hideText();
         answers = "";
         correctAnswerText = "";
-        for(int i = 0; i < answerList.size(); i++){
+        for(int i = 0; i < childNames.size(); i++){
             answers += answerList.get(i);
             if(answerList.get(i).equals(correctAnswers.get(i))){
+                correctAnswerCount++;
                 correctAnswerText += correctAnswers.get(i);
             } else {
                 correctAnswerText += correctAnswers.get(i);
@@ -217,7 +269,9 @@ public class QuizScreen extends Activity {
             correctAnswerText += System.getProperty("line.separator") + System.getProperty("line.separator");
         }
         Intent intent = new Intent(this, QuizAnswerScreen.class);
+        intent.putExtra("correctAnswerCount", correctAnswerCount);
         intent.putExtra("answerList", answers);
+        intent.putExtra("quizAnswersLength", childNames.size());
         intent.putExtra("correctAnswers", correctAnswerText);
         startActivity(intent);
     }
