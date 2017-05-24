@@ -42,11 +42,14 @@ public class QuizScreen extends Activity {
     Button nextQuestion;
     RadioGroup quizRadiogroup;
     ArrayList<String> answerList;
+    ArrayList<String> isQuizTargetArray;
     ArrayList<String> correctAnswers;
     String answers;
     String correctAnswerText;
     int size = 0;
     int x = 0;
+    int answerListIndex = -1;
+    int amountOfQuizTargets;
     int correctAnswerCount = 0;
     ArrayList<String> childNames;
     ArrayList<String> imageTargetNames;
@@ -55,6 +58,7 @@ public class QuizScreen extends Activity {
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
+    private String isQuizTarget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +79,7 @@ public class QuizScreen extends Activity {
         answerList = new ArrayList<String>();
         correctAnswers = new ArrayList<String>();
         childNames = new ArrayList<String>();
+        isQuizTargetArray = new ArrayList<String>();
 
         Intent intent = getIntent();
         imageTargetNames = intent.getStringArrayListExtra("ImageTargets");
@@ -86,6 +91,7 @@ public class QuizScreen extends Activity {
                     String name = postSnapshot.getKey();
                     size++;
                     childNames.add(name);
+                    isQuizTargetArray.add(postSnapshot.child("isQuizTarget").getValue().toString());
                 }
             }
 
@@ -104,17 +110,18 @@ public class QuizScreen extends Activity {
                 }
             }
         });
+
     }
 
     public void setText(){
-
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(x <= size - 1){
                     String name = childNames.get(x);
+                    isQuizTarget = isQuizTargetArray.get(x);
 
-                    if(!name.equals("quiz_icon")){
+                    if(isQuizTarget.equals("false")){
                         StorageReference image = mStorageRef.child(name);
                         Glide.with(getApplication().getApplicationContext())
                                 .using(new FirebaseImageLoader())
@@ -179,6 +186,7 @@ public class QuizScreen extends Activity {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 correctAnswers.add(dataSnapshot.getValue().toString());
+                                answerListIndex++;
                             }
 
                             @Override
@@ -187,8 +195,9 @@ public class QuizScreen extends Activity {
                             }
                         });
                     }
-                    else {
+                    else{
                         x++;
+                        setText();
                     }
                 }
                 else {
@@ -201,8 +210,6 @@ public class QuizScreen extends Activity {
 
             }
         });
-
-
     }
 
     public void hideText(){
@@ -221,7 +228,7 @@ public class QuizScreen extends Activity {
             int selected = quizRadiogroup.getCheckedRadioButtonId();
             button = (RadioButton) findViewById(selected);
             answerList.add(button.getText().toString());
-            if(answerList.get(x).equals(correctAnswers.get(x))){
+            if(answerList.get(answerListIndex).equals(correctAnswers.get(answerListIndex))){
                 button.setTextColor(Color.GREEN);
             }else {
                 button.setTextColor(Color.RED);
@@ -244,7 +251,12 @@ public class QuizScreen extends Activity {
         hideText();
         answers = "";
         correctAnswerText = "";
-        for(int i = 0; i < childNames.size(); i++){
+        for(int j = 0; j < isQuizTargetArray.size(); j++){
+            if(isQuizTargetArray.get(j).equals("true")){
+                amountOfQuizTargets++;
+            }
+        }
+        for(int i = 0; i < childNames.size() - amountOfQuizTargets; i++){
             answers += answerList.get(i);
             if(answerList.get(i).equals(correctAnswers.get(i))){
                 correctAnswerCount++;
@@ -258,7 +270,7 @@ public class QuizScreen extends Activity {
         Intent intent = new Intent(this, QuizAnswerScreen.class);
         intent.putExtra("correctAnswerCount", correctAnswerCount);
         intent.putExtra("answerList", answers);
-        intent.putExtra("quizAnswersLength", childNames.size());
+        intent.putExtra("quizAnswersLength", childNames.size() - amountOfQuizTargets);
         intent.putExtra("correctAnswers", correctAnswerText);
         startActivity(intent);
     }

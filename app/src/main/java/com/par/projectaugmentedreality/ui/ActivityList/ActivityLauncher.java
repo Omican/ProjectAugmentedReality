@@ -4,11 +4,15 @@ package com.par.projectaugmentedreality.ui.ActivityList;
  * Created by Maick on 4/4/2017.
  */
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,7 +31,7 @@ public class ActivityLauncher extends Activity
 {
 
     TextView startScan;
-
+    public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -46,11 +50,38 @@ public class ActivityLauncher extends Activity
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activities_list);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    MY_PERMISSIONS_REQUEST_CAMERA);
+        }
     }
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+                } else {
+
+
+                }
+                return;
+            }
+        }
     }
 
     public void onStartScanClick(View view){

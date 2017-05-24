@@ -68,6 +68,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
     boolean startedIntent;
     private Context context;
     private ArrayList<String> imageTargetList = new ArrayList<>();
+    private String isQuizTarget;
 
     private DatabaseReference mDatabase;
 
@@ -410,7 +411,18 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             imageTarget = (ImageTarget) trackableResult.getTrackable();
             int currentTarget;
 
-            if (!imageTarget.getName().equals("quiz_icon")) {
+            mDatabase.child(imageTarget.getName()).child("isQuizTarget").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    isQuizTarget = dataSnapshot.getValue().toString();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            if (isQuizTarget != null && isQuizTarget.equals("false")) {
                 mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -436,7 +448,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             }
             // We store the modelview matrix to be used later by the tap
             // calculation
-            if (imageTarget.getName().equals("quiz_icon")) {
+            if (isQuizTarget != null && isQuizTarget.equals("true")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -448,7 +460,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                             startedIntent = true;
                         }
                     }
-                }, 2000);
+                }, 800);
             } else if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
@@ -464,7 +476,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                         }
 
                     }
-                }, 2000);
+                }, 800);
             } else if (type != null && type.equals("video")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
@@ -724,7 +736,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
             Renderer.getInstance().end();*/
 
-                }, 2000);
+                }, 800);
             }
         }
     }
