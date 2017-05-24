@@ -148,5 +148,8 @@
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="title_activity_youtube_failure_recovery">YoutubeFailureRecoveryActivity</string>
 
+    <string name="title_quizzar">Quizzar</string>
+    <string name="menu_start_scan">Start met scannen</string>
+
 
 </resources>

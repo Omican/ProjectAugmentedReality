@@ -11,4 +11,6 @@
     <color name="holo_light_blue">#33B5E5</color>
     <color name="red">#ff0000</color>
     <color name="green">#00ff00</color>
+    <color name="title_bar_blue">#011638</color>
+    <color name="menu_background">#35495E</color>
     </resources>

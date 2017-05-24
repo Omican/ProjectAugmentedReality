@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,6 +33,7 @@ public class TargetInformation extends Activity {
     ImageView TargetInfoImage;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class TargetInformation extends Activity {
         setContentView(R.layout.activity_target_information);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
         TargetInfoText = (TextView) findViewById(R.id.TargetInfoText);
         TargetInfoImage = (ImageView) findViewById(R.id.TargetInfoImage);
@@ -65,9 +68,7 @@ public class TargetInformation extends Activity {
                     }
                 });
 
-       // int id = getId(name, R.string.class);
-
-
+        mAuth.signInAnonymously();
     }
 
     public static int getId(String resourceName, Class<?> c) {
