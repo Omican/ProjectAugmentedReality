@@ -151,5 +151,16 @@
     <string name="title_quizzar">Quizzar</string>
     <string name="menu_start_scan">Start met scannen</string>
 
+    <string name="title_about">Handleiding</string>
+    <string name="what_it_does_about">Wat doet het?</string>
+    <string name="what_it_does_text">Quizzar maakt gebruik van de camera van je telefoon om afbeeldingen te scannen.
+                                     Bij elke afbeelding die gescanned wordt hoort een video of een uitleg in de vorm van tekst.</string>
+    <string name="how_it_works_title">Hoe werkt het?</string>
+    <string name="how_it_works_text">Houdt je camera op een afbeelding om de bijbehoorende video of uitleg te tonen.
+                                     Het duurt ongeveer een seconde voordat er iets wordt getoond.</string>
+    <string name="quiz_title_about">De quiz</string>
+    <string name="quiz_text_about">Nadat je alle afbeelding hebt gescanned en de theorie begrijpt kan je de quiz starten
+                                    om je kennis te testen. Dit doe je doormiddel van het scannen van het quiz symbool op de poster.</string>
+
 
 </resources>
