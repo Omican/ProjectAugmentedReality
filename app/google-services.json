@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "3349377158-69pu9unhofvuhh8rp0gjm65v11kbtpr2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.par.projectaugmentedreality",
+            "certificate_hash": "a5964eca4a2c1fb08131e6a1452b9507f6f95b45"
+          }
+        },
+        {
           "client_id": "3349377158-69cfnbln4t58t4cfrpcq3u1p88kid5rh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -30,6 +38,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyBpZ4aw_Ln6aYfLprgZN938VhSTgC4dnoE"
+        },
+        {
+          "current_key": "AIzaSyDkqfa6_KWpgH3x8FHE5ip9tciE4PtaQAI"
         }
       ],
       "services": {

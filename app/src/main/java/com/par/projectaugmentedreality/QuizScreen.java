@@ -1,6 +1,7 @@
 package com.par.projectaugmentedreality;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -30,6 +31,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class QuizScreen extends Activity {
@@ -81,6 +85,12 @@ public class QuizScreen extends Activity {
         childNames = new ArrayList<String>();
         isQuizTargetArray = new ArrayList<String>();
 
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
+
         Intent intent = getIntent();
         imageTargetNames = intent.getStringArrayListExtra("ImageTargets");
 
@@ -111,6 +121,11 @@ public class QuizScreen extends Activity {
             }
         });
 
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     public void setText(){
@@ -236,7 +251,7 @@ public class QuizScreen extends Activity {
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    button.setTextColor(Color.BLACK);
+                    button.setTextColor(Color.WHITE);
                     quizRadiogroup.clearCheck();
                     x++;
                     setText();

@@ -162,5 +162,7 @@
     <string name="quiz_text_about">Nadat je alle afbeelding hebt gescanned en de theorie begrijpt kan je de quiz starten
                                     om je kennis te testen. Dit doe je doormiddel van het scannen van het quiz symbool op de poster.</string>
 
+    <string name="quiz_back_button">Terug</string>
+
 
 </resources>

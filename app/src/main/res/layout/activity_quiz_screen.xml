@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     tools:context="com.par.projectaugmentedreality.QuizScreen"
-    android:background="@color/white"
-    android:id="@+id/quiz_screen_layout">
+    android:background="@color/menu_background"
+    android:id="@+id/quiz_screen_layout"
+    tools:ignore="MissingPrefix">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
+        fontPath="fonts/VAG_Rounded_Bold.ttf"
+        android:textColor="@color/white"
         android:id="@+id/quiz_question"/>
     <RadioGroup
         android:layout_width="match_parent"
@@ -32,24 +35,39 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/quiz_red"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
+            android:textColor="@color/white"
             android:id="@+id/answer_one"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/quiz_green"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
+            android:textColor="@color/white"
             android:id="@+id/answer_two"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/quiz_blue"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
+            android:textColor="@color/white"
             android:id="@+id/answer_three"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:buttonTint="@color/quiz_yellow"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
+            android:textColor="@color/white"
             android:id="@+id/answer_four"/>
 
     </RadioGroup>
 
         <Button
             android:id="@+id/quiz_next_button"
+            android:backgroundTint="@color/title_bar_blue"
+            fontPath="fonts/VAG_Rounded_Bold.ttf"
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="nextQuestion"

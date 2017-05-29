@@ -462,7 +462,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                         }
                     }
                 }, 800);
-            } else if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
+            } if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -474,12 +474,11 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                             mActivity.stopFinderIfStarted();
                             context.startActivity(intent);
                             startedIntent = true;
-
                         }
 
                     }
                 }, 800);
-            } else if (type != null && type.equals("video")) {
+            } if (type != null && type.equals("video")) {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
