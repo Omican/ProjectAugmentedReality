@@ -34,7 +34,7 @@
         android:id="@+id/quiz_image"
         android:layout_width="386dp"
         android:layout_height="204dp"
-        android:scaleType="centerInside"
+        android:scaleType="fitXY"
         tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"

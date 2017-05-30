@@ -30,7 +30,7 @@
 
     <ImageView
         android:id="@+id/TargetInfoImage"
-        android:scaleType="centerInside"
+        android:scaleType="fitXY"
         android:layout_width="0dp"
         android:layout_height="0dp"
         tools:layout_constraintTop_creator="1"

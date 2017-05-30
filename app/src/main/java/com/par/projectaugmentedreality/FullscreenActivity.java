@@ -161,4 +161,10 @@ public class FullscreenActivity extends YoutubeFailureRecoveryActivity implement
         doLayout();
     }
 
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(this, CloudReco.class);
+        startActivity(intent);
+    }
+
 }
