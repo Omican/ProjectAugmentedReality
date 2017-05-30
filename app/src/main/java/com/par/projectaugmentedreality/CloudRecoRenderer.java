@@ -65,8 +65,12 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
     private String URL;
     ImageTarget imageTarget;
     String trackableName;
-    boolean retrievedData = false;
+    boolean retrievedQuizTarget = false;
+    boolean retrievedType = false;
+    boolean retrievedURL = false;
+    boolean targetIsVideo = false;
     boolean startedIntent;
+    boolean targetIsQuizTarget;
     private Context context;
     private ArrayList<String> imageTargetList = new ArrayList<>();
     private String isQuizTarget;
@@ -410,11 +414,19 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             mActivity.startFinderIfStopped();
 
             imageTarget = (ImageTarget) trackableResult.getTrackable();
-            if(retrievedData == false) {
+            if(retrievedQuizTarget == false) {
                 mDatabase.child(imageTarget.getName()).child("isQuizTarget").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         isQuizTarget = dataSnapshot.getValue().toString();
+                        retrievedQuizTarget = true;
+
+                        if(dataSnapshot.getValue().toString().equals("true")){
+                            targetIsQuizTarget = true;
+                        }
+                        if(dataSnapshot.getValue().toString().equals("false")){
+                            targetIsQuizTarget = false;
+                        }
                     }
 
                     @Override
@@ -422,41 +434,44 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
 
                     }
                 });
-                if (isQuizTarget != null && isQuizTarget.equals("false")) {
-                    mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            type = dataSnapshot.getValue().toString();
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                    if(type != null && type.equals("video")) {
-                        mDatabase.child(imageTarget.getName()).child("videoURL").addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                URL = dataSnapshot.getValue().toString();
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                }
-                if(isQuizTarget != null || type != null) {
-                    retrievedData = true;
-                }
             }
+            if(targetIsQuizTarget == false) {
+                mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        type = dataSnapshot.getValue().toString();
+                        if(dataSnapshot.getValue().toString().equals("video")){
+                            targetIsVideo = true;
+                        }
+                        retrievedType = true;
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+            if(retrievedURL == false && targetIsVideo == true) {
+                mDatabase.child(imageTarget.getName()).child("videoUrl").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        URL = dataSnapshot.getValue().toString();
+                        retrievedURL = true;
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+
             // We store the modelview matrix to be used later by the tap
             // calculation
 
-            if( retrievedData == true) {
-                if (isQuizTarget != null && isQuizTarget.equals("true")) {
+            if( targetIsQuizTarget == true) {
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -467,42 +482,47 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                                 mActivity.stopFinderIfStarted();
                                 context.startActivity(intent);
                                 startedIntent = true;
+                                retrievedQuizTarget = false;
                             }
                         }
                     }, 800);
-                }
-                else if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
+            }
+            if(retrievedType == true) {
+                if (imageTarget.getName() != null && !imageTarget.getName().equals("")) {
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            trackableName = imageTarget.getName();
                             Intent intent = new Intent(context, TargetInformation.class);
-                            intent.putExtra("Dataset", trackableName);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             if (startedIntent == false) {
+                                intent.putExtra("Dataset", imageTarget.getName());
+                                type = null;
                                 mActivity.stopFinderIfStarted();
                                 context.startActivity(intent);
                                 startedIntent = true;
+                                retrievedType = false;
                             }
 
                         }
                     }, 800);
                 }
-                else if (type != null && type.equals("video")) {
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(context, FullscreenActivity.class);
-                            intent.putExtra("VideoURL", URL);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            if (startedIntent == false) {
-                                mActivity.stopFinderIfStarted();
-                                context.startActivity(intent);
-                                startedIntent = true;
-                            }
+            }
+            if(retrievedURL == true) {
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(context, FullscreenActivity.class);
+                        intent.putExtra("VideoURL", URL);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        if (startedIntent == false) {
+                            type = null;
+                            mActivity.stopFinderIfStarted();
+                            context.startActivity(intent);
+                            startedIntent = true;
+                            retrievedURL = false;
                         }
-                    }, 800);
-                }
+                    }
+                }, 800);
             }
         }
     }
