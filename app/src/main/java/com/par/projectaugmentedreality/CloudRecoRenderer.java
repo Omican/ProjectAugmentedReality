@@ -409,24 +409,12 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             mActivity.startFinderIfStopped();
 
             imageTarget = (ImageTarget) trackableResult.getTrackable();
-            int currentTarget;
-
-            mDatabase.child(imageTarget.getName()).child("isQuizTarget").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    isQuizTarget = dataSnapshot.getValue().toString();
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            if (isQuizTarget != null && isQuizTarget.equals("false")) {
-                mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
+            int x = 0;
+            if(x == 0) {
+                mDatabase.child(imageTarget.getName()).child("isQuizTarget").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        type = dataSnapshot.getValue().toString();
+                        isQuizTarget = dataSnapshot.getValue().toString();
                     }
 
                     @Override
@@ -434,63 +422,83 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
 
                     }
                 });
-                mDatabase.child(imageTarget.getName()).child("videoUrl").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        URL = dataSnapshot.getValue().toString();
-                    }
+                if (isQuizTarget != null && isQuizTarget.equals("false")) {
+                    mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            type = dataSnapshot.getValue().toString();
+                        }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                        }
+                    });
+                    mDatabase.child(imageTarget.getName()).child("videoUrl").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            URL = dataSnapshot.getValue().toString();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+                x = 1;
             }
             // We store the modelview matrix to be used later by the tap
             // calculation
-            if (isQuizTarget != null && isQuizTarget.equals("true")) {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(context, QuizScreen.class);
-                        intent.putStringArrayListExtra("ImageTargets", imageTargetList);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (startedIntent == false) {
-                            mActivity.stopFinderIfStarted();
-                            context.startActivity(intent);
-                            startedIntent = true;
+
+            if( x == 1) {
+                if (isQuizTarget != null && isQuizTarget.equals("true")) {
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(context, QuizScreen.class);
+                            intent.putStringArrayListExtra("ImageTargets", imageTargetList);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if (startedIntent == false) {
+                                mActivity.stopFinderIfStarted();
+                                context.startActivity(intent);
+                                startedIntent = true;
+                            }
                         }
-                    }
-                }, 800);
-            } if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        trackableName = imageTarget.getName();
-                        Intent intent = new Intent(context, TargetInformation.class);
-                        intent.putExtra("Dataset", trackableName);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (startedIntent == false) {
-                            mActivity.stopFinderIfStarted();
-                            context.startActivity(intent);
-                            startedIntent = true;
+                    }, 800);
+                }
+                if (type != null && type.equals("text") && !imageTarget.getName().isEmpty()) {
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            trackableName = imageTarget.getName();
+                            Intent intent = new Intent(context, TargetInformation.class);
+                            intent.putExtra("Dataset", trackableName);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if (startedIntent == false) {
+                                mActivity.stopFinderIfStarted();
+                                context.startActivity(intent);
+                                startedIntent = true;
+                            }
+
+                        }
+                    }, 800);
+                }
+                if (type != null && type.equals("video")) {
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(context, FullscreenActivity.class);
+                            intent.putExtra("VideoURL", URL);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if (startedIntent == false) {
+                                mActivity.stopFinderIfStarted();
+                                context.startActivity(intent);
+                                startedIntent = true;
+                            }
                         }
 
-                    }
-                }, 800);
-            } if (type != null && type.equals("video")) {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(context, FullscreenActivity.class);
-                        intent.putExtra("VideoURL", URL);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (startedIntent == false) {
-                            mActivity.stopFinderIfStarted();
-                            context.startActivity(intent);
-                            startedIntent = true;
-                        }
-                    }
+
               /*  currentTarget = CloudReco.CHIPS;
 
 
@@ -738,7 +746,8 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
             Renderer.getInstance().end();*/
 
-                }, 800);
+                    }, 800);
+                }
             }
         }
     }

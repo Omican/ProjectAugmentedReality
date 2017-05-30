@@ -14,7 +14,6 @@
         android:layout_height="343dp"
         android:id="@+id/TargetInfoText"
         android:paddingTop="5dp"
-        android:isScrollContainer="true"
         android:textColor="@color/white"
         fontPath="fonts/VAG_Rounded_Light.ttf"
         tools:layout_constraintRight_creator="1"
@@ -31,7 +30,7 @@
 
     <ImageView
         android:id="@+id/TargetInfoImage"
-        android:scaleType="fitCenter"
+        android:scaleType="centerInside"
         android:layout_width="0dp"
         android:layout_height="0dp"
         tools:layout_constraintTop_creator="1"
