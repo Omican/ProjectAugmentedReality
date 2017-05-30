@@ -1,6 +1,7 @@
 package com.par.projectaugmentedreality;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -28,6 +29,9 @@ import com.par.projectaugmentedreality.R;
 
 import java.lang.reflect.Field;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class TargetInformation extends Activity {
     TextView TargetInfoText;
     ImageView TargetInfoImage;
@@ -47,6 +51,12 @@ public class TargetInformation extends Activity {
         TargetInfoImage = (ImageView) findViewById(R.id.TargetInfoImage);
         Intent intent = getIntent();
         String name = intent.getStringExtra("Dataset");
+
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
 
         StorageReference image = mStorageRef.child(name);
 
@@ -71,13 +81,19 @@ public class TargetInformation extends Activity {
         mAuth.signInAnonymously();
     }
 
-    public static int getId(String resourceName, Class<?> c) {
-        try {
-            Field idField = c.getDeclaredField(resourceName);
-            return idField.getInt(idField);
-        } catch (Exception e) {
-            throw new RuntimeException("No resource ID found for: "
-                    + resourceName + " / " + c, e);
-        }
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    public void backButton(View v){
+        Intent intent = new Intent(this, CloudReco.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(this, CloudReco.class);
+        startActivity(intent);
     }
 }

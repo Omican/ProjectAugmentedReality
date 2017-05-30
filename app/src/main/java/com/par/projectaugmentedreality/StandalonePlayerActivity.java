@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 /**
  * A simple YouTube Android API  application which shows how to use a
  * {@link YouTubeStandalonePlayer} intent to start a YouTube video playback.
@@ -149,6 +150,12 @@ public class StandalonePlayerActivity extends Activity implements View.OnClickLi
             }
         }
         return defaultValue;
+    }
+
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(this, CloudReco.class);
+        startActivity(intent);
     }
 
 }

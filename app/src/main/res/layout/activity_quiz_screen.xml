@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,68 +9,115 @@
     android:background="@color/menu_background"
     android:id="@+id/quiz_screen_layout"
     tools:ignore="MissingPrefix">
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/quiz_image"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"/>
-    <TextView
-        android:layout_below="@id/quiz_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+
+    <Button
+        android:id="@+id/quiz_next_button"
         fontPath="fonts/VAG_Rounded_Bold.ttf"
+        android:layout_width="0dp"
+        android:layout_height="49dp"
+        android:backgroundTint="@color/title_bar_blue"
+        android:onClick="nextQuestion"
+        android:text="@string/quiz_next_button_text"
         android:textColor="@color/white"
-        android:id="@+id/quiz_question"/>
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginStart="21dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="21dp"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="21dp"
+        android:layout_marginRight="21dp" />
+    <ImageView
+        android:id="@+id/quiz_image"
+        android:layout_width="386dp"
+        android:layout_height="204dp"
+        android:scaleType="fitCenter"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toTopOf="@+id/quiz_question"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="1dp"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/quiz_question"
+        fontPath="fonts/VAG_Rounded_Bold.ttf"
+        android:layout_width="335dp"
+        android:layout_height="39dp"
+        android:layout_below="@id/quiz_image"
+        android:textColor="@color/white"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="214dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        tools:layout_editor_absoluteX="39dp" />
+
+
     <RadioGroup
-        android:layout_width="match_parent"
+        android:id="@+id/quiz_radiogroup"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/quiz_question"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
-        android:id="@+id/quiz_radiogroup">
+        android:layout_below="@+id/quiz_question"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="15dp"
+        android:weightSum="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quiz_question"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1">
+
         <RadioButton
+            android:id="@+id/answer_one"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="53dp"
+            android:layout_weight="1.56"
             android:buttonTint="@color/quiz_red"
-            fontPath="fonts/VAG_Rounded_Light.ttf"
-            android:textColor="@color/white"
-            android:id="@+id/answer_one"/>
+            android:textColor="@color/white" />
+
         <RadioButton
+            android:id="@+id/answer_two"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:buttonTint="@color/quiz_green"
-            fontPath="fonts/VAG_Rounded_Light.ttf"
-            android:textColor="@color/white"
-            android:id="@+id/answer_two"/>
+            android:textColor="@color/white" />
+
         <RadioButton
+            android:id="@+id/answer_three"
+            fontPath="fonts/VAG_Rounded_Light.ttf"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="54dp"
             android:buttonTint="@color/quiz_blue"
-            fontPath="fonts/VAG_Rounded_Light.ttf"
-            android:textColor="@color/white"
-            android:id="@+id/answer_three"/>
+            android:textColor="@color/white" />
+
         <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/quiz_yellow"
+            android:id="@+id/answer_four"
             fontPath="fonts/VAG_Rounded_Light.ttf"
-            android:textColor="@color/white"
-            android:id="@+id/answer_four"/>
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:buttonTint="@color/quiz_yellow"
+            android:textColor="@color/white" />
 
     </RadioGroup>
-
-        <Button
-            android:id="@+id/quiz_next_button"
-            android:backgroundTint="@color/title_bar_blue"
-            fontPath="fonts/VAG_Rounded_Bold.ttf"
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="nextQuestion"
-            android:layout_marginTop="540dp"
-            android:text="@string/quiz_next_button_text" />
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
