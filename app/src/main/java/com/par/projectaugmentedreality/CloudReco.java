@@ -321,7 +321,7 @@ public class CloudReco extends Activity implements ApplicationControl,
                 null, false);
 
         mUILayout.setVisibility(View.VISIBLE);
-        mUILayout.setBackgroundColor(Color.BLACK);
+        mUILayout.setBackgroundColor(Color.rgb(53, 73, 94));
 
         // By default
         loadingDialogHandler.mLoadingDialogContainer = mUILayout
