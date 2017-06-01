@@ -21,7 +21,7 @@ import com.par.projectaugmentedreality.R;
 public class ActivitySplashScreen extends Activity
 {
 
-    private static long SPLASH_MILLIS = 2000;
+    private static long SPLASH_MILLIS = 1500;
 
 
     @Override
