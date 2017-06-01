@@ -19,6 +19,9 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Sample activity showing how to properly enable custom fullscreen behavior.
  * <p>
@@ -49,7 +52,9 @@ public class FullscreenActivity extends YoutubeFailureRecoveryActivity implement
         super.onCreate(savedInstanceState);
 
         Intent urlIntent = getIntent();
-        VIDEO_ID = urlIntent.getStringExtra("VideoURL");
+        String databaseUrl = urlIntent.getStringExtra("VideoURL");
+
+        VIDEO_ID = parseURL(databaseUrl);
 
         setContentView(R.layout.activity_fullscreen);
         baseLayout = (LinearLayout) findViewById(R.id.layout);
@@ -65,6 +70,19 @@ public class FullscreenActivity extends YoutubeFailureRecoveryActivity implement
         playerView.initialize(DeveloperKey.DEVELOPER_KEY, this);
 
         doLayout();
+    }
+
+    private String parseURL(String VideoUrl){
+        String pattern = "(?<=watch\\?v=|/videos/|/embed/|youtu.be/)[^&#?]*";
+
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(VideoUrl);
+
+        if(matcher.find()){
+            return matcher.group();
+        } else {
+            return null;
+        }
     }
 
     @Override

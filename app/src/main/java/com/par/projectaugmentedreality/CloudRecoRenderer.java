@@ -425,7 +425,7 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
                             openTextTarget(dataSnapshot.child("targetName").getValue().toString());
                         }
                         else if(dataSnapshot.child("type").getValue().equals("video")){
-                            openVideoTarget(dataSnapshot.child("videoUrl").getValue().toString());
+                            openVideoTarget(dataSnapshot.child("youtubeUrl").getValue().toString());
                         }
                     }
                 @Override
