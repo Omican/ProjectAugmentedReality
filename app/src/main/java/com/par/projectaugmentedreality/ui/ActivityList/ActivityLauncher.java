@@ -33,8 +33,6 @@ public class ActivityLauncher extends Activity
 
     Button startScanButton;
     Button startManualButton;
-    private String mClassToLaunch;
-    private String mClassToLaunchPackage;
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
     @Override
@@ -97,12 +95,6 @@ public class ActivityLauncher extends Activity
         intent.putExtra("ABOUT_TEXT", "VideoPlayback/VP_about.html");
 
         startActivity(intent);
-    }
-
-    public void startManualActivity(View view) {
-        Intent i = new Intent();
-        i.setClassName(mClassToLaunchPackage, mClassToLaunch);
-        startActivity(i);
     }
 
 }
