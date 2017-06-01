@@ -164,5 +164,8 @@
 
     <string name="quiz_back_button">Terug</string>
 
+    <string name="manual">HANDLEIDING</string>
+    <string name="scan_start">START SCAN</string>
+
 
 </resources>

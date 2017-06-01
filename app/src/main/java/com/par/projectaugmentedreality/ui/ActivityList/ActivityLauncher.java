@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.par.projectaugmentedreality.CloudReco;
 import com.par.projectaugmentedreality.R;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
@@ -88,12 +89,17 @@ public class ActivityLauncher extends Activity
         }
     }
 
-    public void startScanActivity(View view) {
+    public void openAboutScreen(View view) {
         Intent intent = new Intent(this, AboutScreen.class);
         intent.putExtra("ABOUT_TEXT_TITLE", "Cloud Reco");
         intent.putExtra("ACTIVITY_TO_LAUNCH", "CloudReco");
         intent.putExtra("ABOUT_TEXT", "VideoPlayback/VP_about.html");
 
+        startActivity(intent);
+    }
+
+    public void startScanActivity(View  view){
+        Intent intent = new Intent(this, CloudReco.class);
         startActivity(intent);
     }
 
