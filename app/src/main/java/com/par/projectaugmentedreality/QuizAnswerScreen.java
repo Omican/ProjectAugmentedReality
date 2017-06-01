@@ -20,12 +20,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class QuizAnswerScreen extends ListActivity {
-    TextView answerText;
-    TextView correctAnswerHeader;
-    TextView givenAnswerHeader;
-    TextView correctAnswer;
     TextView resultScore;
-    ProgressBar resultProgressbar;
     ListView answerListView;
     int correctAnswerCounter;
     DoubleArrayAdapter arrayAdapter;
@@ -41,17 +36,13 @@ public class QuizAnswerScreen extends ListActivity {
         ArrayList<String> answers = intent.getStringArrayListExtra("answerList");
         ArrayList<String> correctAnswersResult = intent.getStringArrayListExtra("correctAnswersResult");
         ArrayList<String> quizQuestions = intent.getStringArrayListExtra("quizQuestions");
-        String correctAnswers = intent.getStringExtra("correctAnswers");
+        ArrayList<String> correctAnswers = intent.getStringArrayListExtra("correctAnswers");
         correctAnswerCounter = intent.getIntExtra("correctAnswerCount", 0);
         int answersSize = intent.getIntExtra("quizAnswersLength", 0);
 
-        //answerText = (TextView) findViewById(R.id.answer_text);
-        //correctAnswer = (TextView) findViewById(R.id.correct_answer);
-        //givenAnswerHeader = (TextView) findViewById(R.id.given_answer_header);
         answerListView = (ListView) findViewById(android.R.id.list);
-       // correctAnswerHeader = (TextView) findViewById(R.id.correct_answer_header);
         resultScore = (TextView) findViewById(R.id.resultText);
-        arrayAdapter = new DoubleArrayAdapter(this, answers, correctAnswersResult, quizQuestions);
+        arrayAdapter = new DoubleArrayAdapter(this, answers, correctAnswersResult, quizQuestions, correctAnswers);
         setListAdapter(arrayAdapter);
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
@@ -59,19 +50,8 @@ public class QuizAnswerScreen extends ListActivity {
                 .build()
         );
 
-        //correctAnswerHeader.setText(getString(R.string.correct_answer_header));
-        //givenAnswerHeader.setText(getString(R.string.given_answer_header));
-
-
-
-        //correctAnswer.setText(correctAnswers);
-        //answerText.setText(answers);
-
         String correctAnswerCountString = correctAnswerCounter + "/" + answersSize + " vragen goed";
-
         resultScore.setText(correctAnswerCountString);
-        //resultProgressbar.setMax(answersSize);
-       // resultProgressbar.setProgress(correctAnswerCounter);
     }
 
     @Override

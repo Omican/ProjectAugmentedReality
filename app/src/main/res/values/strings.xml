@@ -167,5 +167,7 @@
     <string name="manual">HANDLEIDING</string>
     <string name="scan_start">START SCAN</string>
 
+    <string name="correct_answer">Juiste antwoord</string>
+
 
 </resources>

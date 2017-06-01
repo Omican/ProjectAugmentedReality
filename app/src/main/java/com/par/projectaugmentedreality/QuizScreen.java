@@ -50,8 +50,6 @@ public class QuizScreen extends Activity {
     ArrayList<String> correctAnswers;
     ArrayList<String> correctAnswersResult;
     ArrayList<String> quizQuestions;
-    String answers;
-    String correctAnswerText;
     int size = 0;
     int x = 0;
     int answerListIndex = -1;
@@ -269,33 +267,26 @@ public class QuizScreen extends Activity {
 
     public void showAnswers(){
         hideText();
-        answers = "";
-        correctAnswerText = "";
         for(int j = 0; j < isQuizTargetArray.size(); j++){
             if(isQuizTargetArray.get(j).equals("true")){
                 amountOfQuizTargets++;
             }
         }
         for(int i = 0; i < childNames.size() - amountOfQuizTargets; i++){
-            answers += answerList.get(i);
             if(answerList.get(i).equals(correctAnswers.get(i))){
                 correctAnswerCount++;
-                correctAnswerText += correctAnswers.get(i);
                 correctAnswersResult.add("Goed");
             } else {
-                correctAnswerText += correctAnswers.get(i);
                 correctAnswersResult.add("Fout");
             }
-            answers += System.getProperty("line.separator") + System.getProperty("line.separator");
-            correctAnswerText += System.getProperty("line.separator") + System.getProperty("line.separator");
         }
         Intent intent = new Intent(this, QuizAnswerScreen.class);
         intent.putExtra("correctAnswerCount", correctAnswerCount);
-        intent.putExtra("answerList", answerList);
         intent.putExtra("quizAnswersLength", childNames.size() - amountOfQuizTargets);
-        intent.putExtra("correctAnswers", correctAnswerText);
         intent.putExtra("correctAnswersResult", correctAnswersResult);
+        intent.putExtra("answerList", answerList);
         intent.putExtra("quizQuestions", quizQuestions);
+        intent.putExtra("correctAnswers", correctAnswers);
         startActivity(intent);
     }
 }
