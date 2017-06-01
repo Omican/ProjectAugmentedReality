@@ -48,6 +48,8 @@ public class QuizScreen extends Activity {
     ArrayList<String> answerList;
     ArrayList<String> isQuizTargetArray;
     ArrayList<String> correctAnswers;
+    ArrayList<String> correctAnswersResult;
+    ArrayList<String> quizQuestions;
     String answers;
     String correctAnswerText;
     int size = 0;
@@ -83,6 +85,8 @@ public class QuizScreen extends Activity {
         answerList = new ArrayList<String>();
         correctAnswers = new ArrayList<String>();
         childNames = new ArrayList<String>();
+        quizQuestions = new ArrayList<>();
+        correctAnswersResult = new ArrayList<>();
         isQuizTargetArray = new ArrayList<String>();
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
@@ -190,6 +194,7 @@ public class QuizScreen extends Activity {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 question.setText(dataSnapshot.getValue().toString());
+                                quizQuestions.add(dataSnapshot.getValue().toString());
                             }
 
                             @Override
@@ -276,17 +281,21 @@ public class QuizScreen extends Activity {
             if(answerList.get(i).equals(correctAnswers.get(i))){
                 correctAnswerCount++;
                 correctAnswerText += correctAnswers.get(i);
+                correctAnswersResult.add("Goed");
             } else {
                 correctAnswerText += correctAnswers.get(i);
+                correctAnswersResult.add("Fout");
             }
             answers += System.getProperty("line.separator") + System.getProperty("line.separator");
             correctAnswerText += System.getProperty("line.separator") + System.getProperty("line.separator");
         }
         Intent intent = new Intent(this, QuizAnswerScreen.class);
         intent.putExtra("correctAnswerCount", correctAnswerCount);
-        intent.putExtra("answerList", answers);
+        intent.putExtra("answerList", answerList);
         intent.putExtra("quizAnswersLength", childNames.size() - amountOfQuizTargets);
         intent.putExtra("correctAnswers", correctAnswerText);
+        intent.putExtra("correctAnswersResult", correctAnswersResult);
+        intent.putExtra("quizQuestions", quizQuestions);
         startActivity(intent);
     }
 }
