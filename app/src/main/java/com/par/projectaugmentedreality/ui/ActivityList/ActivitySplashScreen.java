@@ -50,6 +50,7 @@ public class ActivitySplashScreen extends Activity
 
                 Intent intent = new Intent(ActivitySplashScreen.this,
                         ActivityLauncher.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
 
             }

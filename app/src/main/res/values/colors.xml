@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#ffffff</color>
     <color name="gray">#575757</color>
     <color name="light_gray">#D3D3D3</color>
     <color name="semi_transparent_black">#C8000000</color>
@@ -15,6 +15,7 @@
     <color name="menu_background">#35495E</color>
     <color name="quiz_red">#E64C3C</color>
     <color name="quiz_green">#A1CF68</color>
-    <color name="quiz_blue">#51C1E9</color>
+    <color name="quiz_blue">#51c1e9</color>
     <color name="quiz_yellow">#FFCE55</color>
-    </resources>
+    <color name="button_blue">#2581bc</color>
+</resources>

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,7 +31,10 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class ActivityLauncher extends Activity
 {
 
-    TextView startScan;
+    Button startScanButton;
+    Button startManualButton;
+    private String mClassToLaunch;
+    private String mClassToLaunchPackage;
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
     @Override
@@ -48,7 +52,8 @@ public class ActivityLauncher extends Activity
                 .build()
         );
 
-        startScan = (TextView) findViewById(R.id.activities_menu_start);
+        startScanButton = (Button) findViewById(R.id.startScan);
+        startManualButton = (Button) findViewById(R.id.startManual);
 
         setContentView(R.layout.activities_list);
 
@@ -85,13 +90,19 @@ public class ActivityLauncher extends Activity
         }
     }
 
-    public void onStartScanClick(View view){
+    public void startScanActivity(View view) {
         Intent intent = new Intent(this, AboutScreen.class);
         intent.putExtra("ABOUT_TEXT_TITLE", "Cloud Reco");
         intent.putExtra("ACTIVITY_TO_LAUNCH", "CloudReco");
         intent.putExtra("ABOUT_TEXT", "VideoPlayback/VP_about.html");
 
         startActivity(intent);
+    }
+
+    public void startManualActivity(View view) {
+        Intent i = new Intent();
+        i.setClassName(mClassToLaunchPackage, mClassToLaunch);
+        startActivity(i);
     }
 
 }
