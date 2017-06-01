@@ -77,4 +77,5 @@ public class QuizAnswerScreen extends Activity {
         Intent intent = new Intent(this, CloudReco.class);
         startActivity(intent);
     }
+
 }

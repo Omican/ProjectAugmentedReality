@@ -414,119 +414,78 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer, AppRendererCon
             mActivity.startFinderIfStopped();
 
             imageTarget = (ImageTarget) trackableResult.getTrackable();
-            if(retrievedQuizTarget == false) {
-                mDatabase.child(imageTarget.getName()).child("isQuizTarget").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        isQuizTarget = dataSnapshot.getValue().toString();
-                        retrievedQuizTarget = true;
-
-                        if(dataSnapshot.getValue().toString().equals("true")){
-                            targetIsQuizTarget = true;
+            mDatabase.child(imageTarget.getName()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                        String quiztarget = dataSnapshot.child("isQuizTarget").getValue().toString();
+                        if(quiztarget.equals("true")){
+                            openQuizTarget();
                         }
-                        if(dataSnapshot.getValue().toString().equals("false")){
-                            targetIsQuizTarget = false;
+                        else if(dataSnapshot.child("type").getValue().equals("text")){
+                            openTextTarget(dataSnapshot.child("targetName").getValue().toString());
+                        }
+                        else if(dataSnapshot.child("type").getValue().equals("video")){
+                            openVideoTarget(dataSnapshot.child("videoUrl").getValue().toString());
                         }
                     }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-            if(targetIsQuizTarget == false) {
-                mDatabase.child(imageTarget.getName()).child("type").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        type = dataSnapshot.getValue().toString();
-                        if(dataSnapshot.getValue().toString().equals("video")){
-                            targetIsVideo = true;
-                        }
-                        retrievedType = true;
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-            if(retrievedURL == false && targetIsVideo == true) {
-                mDatabase.child(imageTarget.getName()).child("videoUrl").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        URL = dataSnapshot.getValue().toString();
-                        retrievedURL = true;
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-
-            // We store the modelview matrix to be used later by the tap
-            // calculation
-
-            if( targetIsQuizTarget == true) {
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(context, QuizScreen.class);
-                            intent.putStringArrayListExtra("ImageTargets", imageTargetList);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            if (startedIntent == false) {
-                                mActivity.stopFinderIfStarted();
-                                context.startActivity(intent);
-                                startedIntent = true;
-                                retrievedQuizTarget = false;
-                            }
-                        }
-                    }, 800);
-            }
-            if(retrievedType == true) {
-                if (imageTarget.getName() != null && !imageTarget.getName().equals("")) {
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(context, TargetInformation.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            if (startedIntent == false) {
-                                intent.putExtra("Dataset", imageTarget.getName());
-                                type = null;
-                                mActivity.stopFinderIfStarted();
-                                context.startActivity(intent);
-                                startedIntent = true;
-                                retrievedType = false;
-                            }
-
-                        }
-                    }, 800);
                 }
-            }
-            if(retrievedURL == true) {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(context, FullscreenActivity.class);
-                        intent.putExtra("VideoURL", URL);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (startedIntent == false) {
-                            type = null;
-                            mActivity.stopFinderIfStarted();
-                            context.startActivity(intent);
-                            startedIntent = true;
-                            retrievedURL = false;
-                        }
-                    }
-                }, 800);
-            }
+            });
         }
     }
 
+    private void openVideoTarget(String url){
+        final String videoURL = url;
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(context, FullscreenActivity.class);
+                intent.putExtra("VideoURL", videoURL);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (startedIntent == false) {
+                    mActivity.stopFinderIfStarted();
+                    context.startActivity(intent);
+                    startedIntent = true;
+                }
+            }
+        }, 800);
+    }
+
+    private void openQuizTarget(){
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(context, QuizScreen.class);
+                intent.putStringArrayListExtra("ImageTargets", imageTargetList);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (startedIntent == false) {
+                    mActivity.stopFinderIfStarted();
+                    context.startActivity(intent);
+                    startedIntent = true;
+                }
+            }
+        }, 800);
+    }
+
+    private void openTextTarget(String targetName){
+        final String TargetName = targetName;
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(context, TargetInformation.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    if (startedIntent == false) {
+                        intent.putExtra("Dataset", TargetName);
+                        mActivity.stopFinderIfStarted();
+                        context.startActivity(intent);
+                        startedIntent = true;
+                    }
+
+                }
+            }, 800);
+    }
 
 
 
