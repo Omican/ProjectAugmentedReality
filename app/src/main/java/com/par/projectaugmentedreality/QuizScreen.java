@@ -244,9 +244,9 @@ public class QuizScreen extends Activity {
             button = (RadioButton) findViewById(selected);
             answerList.add(button.getText().toString());
             if(answerList.get(answerListIndex).equals(correctAnswers.get(answerListIndex))){
-                button.setTextColor(Color.GREEN);
+                button.setTextColor(Color.rgb(161, 207, 104));
             }else {
-                button.setTextColor(Color.RED);
+                button.setTextColor(Color.rgb(230,76,60));
             }
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
