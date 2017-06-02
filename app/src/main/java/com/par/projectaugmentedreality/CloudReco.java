@@ -815,7 +815,7 @@ public class CloudReco extends Activity implements ApplicationControl,
         group.addSelectionItem(getString(R.string.menu_extended_tracking),
                 CMD_EXTENDED_TRACKING, false);
 
-        mAppMenu.attachMenu();
+        //mAppMenu.attachMenu();
     }
 
 

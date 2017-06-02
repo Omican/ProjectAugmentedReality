@@ -24,7 +24,6 @@ public class DoubleArrayAdapter extends BaseAdapter {
     private ArrayList<String> Result;
     private ArrayList<String> Question;
     private  ArrayList<String> CorrectAnswers;
-    private ConstraintLayout ListLayout;
     private LayoutInflater inflater;
     private Context Context;
 
@@ -59,7 +58,7 @@ public class DoubleArrayAdapter extends BaseAdapter {
             currentView = inflater.inflate(R.layout.list_item, parent, false);
         }
 
-        ListLayout = (ConstraintLayout) currentView.findViewById(R.id.list_item_layout);
+        ConstraintLayout ListLayout = (ConstraintLayout) currentView.findViewById(R.id.list_item_layout);
 
         TextView textView = (TextView) currentView.findViewById(R.id.list_item_textview);
         textView.setText(Text.get(position));

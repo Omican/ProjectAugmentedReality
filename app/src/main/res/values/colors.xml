@@ -18,4 +18,5 @@
     <color name="quiz_blue">#51C1E9</color>
     <color name="quiz_yellow">#FFCE55</color>
     <color name="button_blue">#2581BC</color>
+    <color name="popup_background">#10547F</color>
 </resources>

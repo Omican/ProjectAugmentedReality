@@ -7,13 +7,13 @@
     android:layout_height="200dp"
     android:layout_gravity="center"
     tools:ignore="MissingPrefix"
-    android:background="@color/menu_background">
+    android:background="@color/popup_background">
 
     <TextView
         fontPath="fonts/VAG_Rounded_Bold.ttf"
         android:textColor="@color/white"
         android:textSize="20dp"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:id="@+id/textView5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -32,12 +32,13 @@
         android:layout_marginRight="11dp" />
 
     <TextView
-        fontPath="fonts/VAG_Rounded_Bold.ttf"
+        fontPath="fonts/VAG_Rounded_Light.ttf"
         android:textColor="@color/white"
         android:id="@+id/answer_popup_text"
         android:isScrollContainer="true"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:lineSpacingExtra="8dp"
+        android:layout_width="237dp"
+        android:layout_height="129dp"
         tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
@@ -51,5 +52,7 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="11dp"
-        android:layout_marginRight="11dp" />
+        android:layout_marginRight="11dp"
+        app:layout_constraintHorizontal_bias="0.512"
+        app:layout_constraintVertical_bias="0.0" />
 </android.support.constraint.ConstraintLayout>
