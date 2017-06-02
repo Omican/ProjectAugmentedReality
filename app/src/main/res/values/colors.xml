@@ -12,10 +12,10 @@
     <color name="red">#ff0000</color>
     <color name="green">#00ff00</color>
     <color name="title_bar_blue">#011638</color>
-    <color name="menu_background">#35495e</color>
+    <color name="menu_background">#35495E</color>
     <color name="quiz_red">#E64C3C</color>
     <color name="quiz_green">#A1CF68</color>
-    <color name="quiz_blue">#51c1e9</color>
+    <color name="quiz_blue">#51C1E9</color>
     <color name="quiz_yellow">#FFCE55</color>
-    <color name="button_blue">#2581bc</color>
+    <color name="button_blue">#2581BC</color>
 </resources>

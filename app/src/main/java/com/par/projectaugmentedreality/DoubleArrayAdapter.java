@@ -3,6 +3,7 @@ package com.par.projectaugmentedreality;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Maickel on 6/1/2017.
@@ -22,6 +24,7 @@ public class DoubleArrayAdapter extends BaseAdapter {
     private ArrayList<String> Result;
     private ArrayList<String> Question;
     private  ArrayList<String> CorrectAnswers;
+    private ConstraintLayout ListLayout;
     private LayoutInflater inflater;
     private Context Context;
 
@@ -56,6 +59,8 @@ public class DoubleArrayAdapter extends BaseAdapter {
             currentView = inflater.inflate(R.layout.list_item, parent, false);
         }
 
+        ListLayout = (ConstraintLayout) currentView.findViewById(R.id.list_item_layout);
+
         TextView textView = (TextView) currentView.findViewById(R.id.list_item_textview);
         textView.setText(Text.get(position));
 
@@ -69,19 +74,7 @@ public class DoubleArrayAdapter extends BaseAdapter {
             resultView.setTextColor(Color.rgb(161, 207, 104));
         } else {
             resultView.setTextColor(Color.rgb(230,76,60));
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Dialog dialog = new Dialog(Context);
-                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    dialog.setContentView(R.layout.correct_answer_popup);
-                    TextView popupText = (TextView) dialog.findViewById(R.id.answer_popup_text);
-                    popupText.setText(CorrectAnswers.get(position));
-                    dialog.show();
-                }
-            });
-
-            questionView.setOnClickListener(new View.OnClickListener() {
+            ListLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Dialog dialog = new Dialog(Context);

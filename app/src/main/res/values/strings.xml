@@ -161,5 +161,9 @@
 
     <string name="correct_answer">Juiste antwoord</string>
 
+    <string name="about_screen_how_it_works">Na het herkennen krijg je de theorie te zien in de vorm van tekst of een video.</string>
+    <string name="about_screen_what_it_does">Richt de camera op de objecten op de poster en wacht tot deze worden herkend.</string>
+    <string name="about_screen_quiz">Alle theorie bestudeerd? Start de quiz door \'Start de Quiz\' te scannen en test je kennis!</string>
+
 
 </resources>

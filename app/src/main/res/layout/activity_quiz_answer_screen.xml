@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:weightSum="2"
-    android:background="@color/menu_background"
+    android:background="@color/button_blue"
     tools:context="com.par.projectaugmentedreality.QuizAnswerScreen"
     tools:ignore="MissingPrefix">
 
